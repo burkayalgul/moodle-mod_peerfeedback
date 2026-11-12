@@ -96,4 +96,14 @@ final class question_manager_test extends \advanced_testcase {
         $qm->delete($a);
         $this->assertSame([], $qm->get_questions());
     }
+
+    public function test_split_text_first_line_is_title_rest_keeps_line_breaks(): void {
+        $text = "Step 1: Clarify\r\n\r\nAsk clarifying questions.\r\nAre there aspects?\n\n---\n\nPasul 1: Clarificați";
+        [$title, $body] = question_manager::split_text($text);
+        $this->assertSame('Step 1: Clarify', $title);
+        $this->assertSame("Ask clarifying questions.\nAre there aspects?\n\n---\n\nPasul 1: Clarificați", $body);
+        $this->assertSame(['How well did they communicate?', ''],
+            question_manager::split_text("  How well did they communicate?  \n"));
+        $this->assertSame(['Title', ''], question_manager::split_text("\n\nTitle"));
+    }
 }

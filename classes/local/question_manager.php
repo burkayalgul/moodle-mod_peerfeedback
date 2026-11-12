@@ -174,4 +174,26 @@ class question_manager {
             $DB->set_field('peerfeedback_question', 'sortorder', ++$i, ['id' => $id]);
         }
     }
+
+    /**
+     * Split question text into a title (first non-empty line) and a description (the rest, line breaks kept).
+     *
+     * @param string $text
+     * @return string[] [title, description]
+     */
+    public static function split_text(string $text): array {
+        $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", trim($text)));
+        $title = trim(array_shift($lines));
+        return [$title, trim(implode("\n", array_map('rtrim', $lines)))];
+    }
+
+    /**
+     * The question title (first line), filtered for display in templates, which escape it.
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function title(string $text): string {
+        return format_string(self::split_text($text)[0], true, ['escape' => false]);
+    }
 }

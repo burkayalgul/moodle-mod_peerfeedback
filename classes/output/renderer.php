@@ -17,6 +17,7 @@
 namespace mod_peerfeedback\output;
 
 use mod_peerfeedback\local\qtype\base;
+use mod_peerfeedback\local\question_manager;
 
 /**
  * Renderer for mod_peerfeedback.
@@ -88,7 +89,7 @@ class renderer extends \plugin_renderer_base {
             ))->out(false);
             $items[] = [
                 'number' => $answerable ? 'Q' . (++$n) : '',
-                'text' => format_string($q->questiontext),
+                'text' => question_manager::title($q->questiontext),
                 'type' => $types[$q->qtype],
                 'required' => $answerable && $q->required,
                 'editurl' => $url(['action' => 'edit']),
@@ -299,7 +300,9 @@ class renderer extends \plugin_renderer_base {
      */
     protected function question_item(\stdClass $q, string $number, ?string $value, ?string $error, bool $readonly): array {
         $c = $q->config;
-        $item = ['id' => $q->id, 'name' => 'q' . $q->id, 'number' => $number, 'text' => format_string($q->questiontext),
+        [$title, $description] = question_manager::split_text($q->questiontext);
+        $item = ['id' => $q->id, 'name' => 'q' . $q->id, 'number' => $number,
+            'text' => format_string($title, true, ['escape' => false]), 'description' => $description,
             'required' => (bool)$q->required, 'error' => $error, 'readonly' => $readonly, 'is' . $q->qtype => true];
         switch ($q->qtype) {
             case 'rating':

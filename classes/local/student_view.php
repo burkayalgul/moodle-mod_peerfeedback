@@ -100,7 +100,7 @@ class student_view {
             foreach ($questions as $q) {
                 $type = base::get($q->qtype);
                 if ($type->is_answerable()) {
-                    $list[] = ['question' => format_string($q->questiontext),
+                    $list[] = ['question' => question_manager::title($q->questiontext),
                         'value' => $type->display_value($q->config, $answers[$r->id][$q->id] ?? null)];
                 }
             }

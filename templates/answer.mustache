@@ -55,13 +55,14 @@
         <input type="hidden" name="peer" value="{{peerid}}">
         <input type="hidden" name="sesskey" value="{{sesskey}}">
         {{#questions}}
-        {{#isheading}}<div class="pf-heading"><h4>{{text}}</h4></div>{{/isheading}}
+        {{#isheading}}<div class="pf-heading"><h4>{{text}}</h4>{{#description}}<div class="pf-q-desc">{{description}}</div>{{/description}}</div>{{/isheading}}
         {{^isheading}}
         <fieldset class="pf-q{{#error}} pf-has-error{{/error}}">
             <legend class="pf-q-title">{{#number}}<span class="pf-qnum">{{number}}</span>{{/number}}
                 {{#israting}}{{text}}{{/israting}}{{#isgrid}}{{text}}{{/isgrid}}{{#issinglechoice}}{{text}}{{/issinglechoice}}{{#ismultichoice}}{{text}}{{/ismultichoice}}
                 {{#isnumber}}<label for="id_q{{id}}">{{text}}</label>{{/isnumber}}{{#isshorttext}}<label for="id_q{{id}}">{{text}}</label>{{/isshorttext}}{{#islongtext}}<label for="id_q{{id}}">{{text}}</label>{{/islongtext}}
                 {{#required}}<span class="pf-req" title="{{#str}}requiredquestion, mod_peerfeedback{{/str}}">*</span>{{/required}}</legend>
+            {{#description}}<div class="pf-q-desc">{{description}}</div>{{/description}}
 
             {{#israting}}
             <div class="pf-rating-wrap"><div class="pf-rating">

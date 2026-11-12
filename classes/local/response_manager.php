@@ -360,7 +360,7 @@ class response_manager {
             foreach ($questions as $q) {
                 $type = base::get($q->qtype);
                 if ($type->is_answerable()) {
-                    $r->answers[] = ['question' => format_string($q->questiontext),
+                    $r->answers[] = ['question' => question_manager::title($q->questiontext),
                         'value' => $type->display_value($q->config, $answers[$r->id][$q->id] ?? null)];
                 }
             }

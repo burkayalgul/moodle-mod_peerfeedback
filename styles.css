@@ -183,12 +183,24 @@
 .path-mod-peerfeedback .pf-q-title {
     font-size: 1rem;
     font-weight: 600;
-    float: none;
-    width: auto;
+    float: left;
+    width: 100%;
     margin-bottom: .6rem;
 }
 
+.path-mod-peerfeedback .pf-q-title + * {
+    clear: both;
+}
+
+.path-mod-peerfeedback .pf-q-desc {
+    white-space: pre-line;
+    font-weight: 400;
+    color: #3b4148;
+    margin-bottom: .75rem;
+}
+
 .path-mod-peerfeedback .pf-q-title label {
+    display: inline;
     margin: 0;
 }
 

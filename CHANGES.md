@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0 — question text
+
+- The first line of a question is its title; further lines are shown beneath it with their line breaks.
+
 ## 0.1.0 (2026-11-12)
 
 - First release: activity-owned groups (assign, random, pair), eight survey-style question types, answering screen with

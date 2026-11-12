@@ -59,7 +59,7 @@ class exporter {
             if (!$type->is_answerable()) {
                 continue;
             }
-            $text = trim(preg_replace('/\s+/', ' ', format_string($q->questiontext, true, ['escape' => false])));
+            $text = trim(preg_replace('/\s+/', ' ', question_manager::title($q->questiontext)));
             if (\core_text::strlen($text) > 40) {
                 $text = rtrim(\core_text::substr($text, 0, 39)) . '…';
             }
