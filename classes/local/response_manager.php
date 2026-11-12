@@ -186,6 +186,7 @@ class response_manager {
                 'objectid' => $record->id, 'context' => $this->context, 'relateduserid' => $receiverid,
                 'userid' => $giverid,
             ])->trigger();
+            peerfeedback_update_completion($this->pf, [$giverid]);
         }
         return [];
     }

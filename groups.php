@@ -92,6 +92,10 @@ if ($action !== '') {
             $gm->pair_all();
             break;
     }
+    if (!in_array($action, ['creategroup', 'rename'])) {
+        // Group changes alter who must be evaluated, so completion is recomputed.
+        peerfeedback_update_completion($pf, array_keys($gm->eligible_users()));
+    }
     $discarded = $before - $DB->count_records('peerfeedback_response', ['peerfeedbackid' => $pf->id, 'status' => 0]);
     if ($discarded > 0) {
         \core\notification::warning(get_string('draftsdiscarded', 'peerfeedback', $discarded));

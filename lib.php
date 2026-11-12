@@ -186,3 +186,66 @@ function peerfeedback_update_grades($pf, $userid = 0, $nullifnone = true) {
     }
     peerfeedback_grade_item_update($pf, $grades ?: null);
 }
+
+/**
+ * Cached course-module info, including the custom completion rule values.
+ *
+ * @param stdClass $coursemodule
+ * @return cached_cm_info|false
+ */
+function peerfeedback_get_coursemodule_info($coursemodule) {
+    global $DB;
+    $pf = $DB->get_record('peerfeedback', ['id' => $coursemodule->instance],
+        'id, name, intro, introformat, completionsubmit');
+    if (!$pf) {
+        return false;
+    }
+    $result = new cached_cm_info();
+    $result->name = $pf->name;
+    if ($coursemodule->showdescription) {
+        $result->content = format_module_intro('peerfeedback', $pf, $coursemodule->id, false);
+    }
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $result->customdata['customcompletionrules']['completionsubmit'] = $pf->completionsubmit;
+    }
+    return $result;
+}
+
+/**
+ * Descriptions of the active custom completion rules.
+ *
+ * @param cm_info|stdClass $cm
+ * @return array
+ */
+function mod_peerfeedback_get_completion_active_rule_descriptions($cm) {
+    if (empty($cm->customdata['customcompletionrules']) || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+        return [];
+    }
+    $descriptions = [];
+    if (!empty($cm->customdata['customcompletionrules']['completionsubmit'])) {
+        $descriptions[] = get_string('completionsubmit', 'peerfeedback');
+    }
+    return $descriptions;
+}
+
+/**
+ * Recompute the "submitted for all" completion state for some users (after a submit or a group change).
+ *
+ * @param stdClass $pf
+ * @param int[] $userids
+ */
+function peerfeedback_update_completion(stdClass $pf, array $userids): void {
+    global $CFG;
+    if (empty($pf->completionsubmit) || !$userids) {
+        return;
+    }
+    require_once($CFG->libdir . '/completionlib.php');
+    [$course, $cm] = get_course_and_cm_from_instance($pf->id, 'peerfeedback');
+    $completion = new completion_info($course);
+    if (!$completion->is_enabled($cm)) {
+        return;
+    }
+    foreach (array_unique($userids) as $userid) {
+        $completion->update_state($cm, COMPLETION_UNKNOWN, (int)$userid);
+    }
+}
