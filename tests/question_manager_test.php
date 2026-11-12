@@ -102,8 +102,10 @@ final class question_manager_test extends \advanced_testcase {
         [$title, $body] = question_manager::split_text($text);
         $this->assertSame('Step 1: Clarify', $title);
         $this->assertSame("Ask clarifying questions.\nAre there aspects?\n\n---\n\nPasul 1: Clarificați", $body);
-        $this->assertSame(['How well did they communicate?', ''],
-            question_manager::split_text("  How well did they communicate?  \n"));
+        $this->assertSame(
+            ['How well did they communicate?', ''],
+            question_manager::split_text("  How well did they communicate?  \n")
+        );
         $this->assertSame(['Title', ''], question_manager::split_text("\n\nTitle"));
     }
 }
