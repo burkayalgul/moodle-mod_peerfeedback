@@ -40,8 +40,8 @@ class backup_peerfeedback_activity_structure_step extends backup_activity_struct
         $members = new backup_nested_element('members');
         $member = new backup_nested_element('member', ['id'], ['userid']);
         $responses = new backup_nested_element('responses');
-        $response = new backup_nested_element('response', ['id'], ['giverid', 'receiverid', 'groupid', 'status', 'grade',
-            'teachercomment', 'editedaftergrade', 'reviewerid', 'timecreated', 'timemodified', 'timesubmitted',
+        $response = new backup_nested_element('response', ['id'], ['giverid', 'receiverid', 'groupid', 'groupname', 'status',
+            'grade', 'teachercomment', 'editedaftergrade', 'reviewerid', 'timecreated', 'timemodified', 'timesubmitted',
             'timereviewed']);
         $answers = new backup_nested_element('answers');
         $answer = new backup_nested_element('answer', ['id'], ['questionid', 'value']);

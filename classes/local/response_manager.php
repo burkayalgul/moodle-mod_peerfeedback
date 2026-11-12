@@ -166,6 +166,7 @@ class response_manager {
         $record = $existing ?: (object)['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid,
             'receiverid' => $receiverid, 'status' => constants::STATUS_SAVED, 'timecreated' => $now, 'editedaftergrade' => 0];
         $record->groupid = $group ? $group->id : 0;
+        $record->groupname = $group ? $group->name : null;
         $record->timemodified = $now;
         if ($submit) {
             $record->status = constants::STATUS_SUBMITTED;
@@ -195,6 +196,32 @@ class response_manager {
             peerfeedback_update_completion($this->pf, [$giverid]);
         }
         return [];
+    }
+
+    /**
+     * The peer a page request is about. A posted form must name a current peer (a stale or forged form is rejected so
+     * answers are never stored against someone else); a plain page view falls back to the first unfinished peer.
+     *
+     * @param int $userid giver
+     * @param int $requested peer id from the request, 0 for none
+     * @param bool $posted whether answers are being saved
+     * @return int peer id, 0 when the user has no peers
+     */
+    public function resolve_peer(int $userid, int $requested, bool $posted): int {
+        $peerids = array_map('intval', array_keys($this->get_peers($userid)));
+        if (in_array($requested, $peerids, true)) {
+            return $requested;
+        }
+        if ($posted) {
+            throw new \moodle_exception('err_notallowed', 'peerfeedback');
+        }
+        foreach ($peerids as $pid) {
+            $r = $this->get_response($userid, $pid);
+            if (!$r || $r->status < constants::STATUS_SUBMITTED) {
+                return $pid;
+            }
+        }
+        return $peerids[0] ?? 0;
     }
 
     /**
@@ -236,7 +263,10 @@ class response_manager {
         if ($grade !== null && ($grade < 0 || $grade > (float)$this->pf->grade)) {
             throw new \moodle_exception('err_gradeoutofrange', 'peerfeedback', '', $this->pf->grade);
         }
-        $r->grade = $this->pf->grading ? $grade : null;
+        if ($this->pf->grading) {
+            // With grading switched off the grade is hidden, not erased, so switching it back on restores it.
+            $r->grade = $grade;
+        }
         $r->teachercomment = ($comment === null || trim($comment) === '') ? null : trim($comment);
         $r->reviewerid = $reviewerid;
         $r->editedaftergrade = 0;
@@ -324,7 +354,8 @@ class response_manager {
             $r->givername = fullname($users[$r->giverid]);
             $r->receivername = fullname($users[$r->receiverid]);
             $r->notsubmitted = (int)$r->status === constants::STATUS_SAVED;
-            $r->outsidegroup = (int)($currentgroup[$r->giverid] ?? 0) !== (int)$r->groupid;
+            $givergroup = (int)($currentgroup[$r->giverid] ?? 0);
+            $r->outsidegroup = !$givergroup || $givergroup !== (int)($currentgroup[$r->receiverid] ?? 0);
             $r->answers = [];
             foreach ($questions as $q) {
                 $type = base::get($q->qtype);

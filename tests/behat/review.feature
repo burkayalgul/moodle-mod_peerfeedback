@@ -48,3 +48,13 @@ Feature: Teachers review and grade the feedback students give
     Then I should see "Your teacher has reviewed this feedback"
     And I should see "85 / 100"
     And I should see "Specific and kind."
+
+  Scenario: The review filter stays on after saving a review
+    Given I am on the "Team feedback" "peerfeedback activity" page logged in as "t1"
+    And I follow "Review"
+    And I follow "Student One"
+    And I set the field "Show" to "Not reviewed"
+    And I press "Go"
+    When I set the field "Teacher comment" to "Thanks."
+    And I press "Save"
+    Then the field "Show" matches value "Not reviewed"

@@ -131,4 +131,18 @@ final class student_view_test extends \advanced_testcase {
             $this->assertNull($item['teachercomment']);
         }
     }
+
+    public function test_all_mode_survives_regroup_into_same_group(): void {
+        global $DB;
+        $this->make(constants::VIS_ALL);
+        $gm = new \mod_peerfeedback\local\group_manager(
+            $this->pf,
+            \context_module::instance(get_coursemodule_from_instance('peerfeedback', $this->pf->id)->id)
+        );
+        $gm->assign([$this->u['a']->id, $this->u['b']->id, $this->u['c']->id], $gm->create_group('Again'));
+        $this->assertCount(6, (new student_view($this->pf))->for_user($this->u['c']->id));
+        $gm->assign([$this->u['c']->id], $gm->create_group('Alone'));
+        $this->assertSame([], (new student_view($this->pf))->for_user($this->u['c']->id));
+        $this->assertCount(2, (new student_view($this->pf))->for_user($this->u['a']->id));
+    }
 }

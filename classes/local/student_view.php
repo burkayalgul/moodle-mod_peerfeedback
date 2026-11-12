@@ -69,8 +69,11 @@ class student_view {
                 if (!$groupid) {
                     return [];
                 }
-                $where = "$base AND groupid = :groupid";
-                $params['groupid'] = $groupid;
+                // Current members on both ends, so feedback survives regrouping into the same group.
+                $members = "SELECT userid FROM {peerfeedback_member} WHERE peerfeedbackid = :pfid2 AND groupid = :gid";
+                $where = "$base AND giverid IN ($members) AND receiverid IN (" .
+                    str_replace([':pfid2', ':gid'], [':pfid3', ':gid2'], $members) . ")";
+                $params += ['pfid2' => $this->pf->id, 'gid' => $groupid, 'pfid3' => $this->pf->id, 'gid2' => $groupid];
                 break;
             default:
                 return [];

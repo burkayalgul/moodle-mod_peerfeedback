@@ -36,6 +36,7 @@ $string['commentplaceholder'] = 'Comment for the student (optional)';
 $string['completiondetail:submit'] = 'Submit feedback for all group members';
 $string['completionsubmit'] = 'Student must submit feedback for all group members';
 $string['confirmdeletequestion'] = 'Delete this question?';
+$string['confirmdiscard'] = '{$a} saved but not submitted feedback will no longer match the groups and will be discarded. Continue?';
 $string['confirmpair'] = 'This replaces all current groups with random pairs (one group of three if the number of students is odd). Continue?';
 $string['criterialines'] = 'Criteria (one per line)';
 $string['defaultgroupname'] = 'Group {$a}';

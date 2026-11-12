@@ -98,7 +98,7 @@ class exporter {
         foreach ($responses as $r) {
             $answers = $DB->get_records_menu('peerfeedback_answer', ['responseid' => $r->id], '', 'questionid, value');
             $row = [$name($r->giverid), $name($r->receiverid),
-                isset($groups[$r->groupid]) ? format_string($groups[$r->groupid]) : ''];
+                format_string($r->groupname ?? ($groups[$r->groupid] ?? ''), true, ['escape' => false])];
             foreach ($this->questions as $q) {
                 $type = base::get($q->qtype);
                 if ($type->is_answerable()) {

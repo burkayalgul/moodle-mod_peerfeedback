@@ -86,7 +86,7 @@
                 {{^notsubmitted}}
                 <form method="post" action="{{actionurl}}" class="pf-reviewbar">
                     <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
-                    <input type="hidden" name="dir" value="{{dir}}"><input type="hidden" name="userid" value="{{userid}}">
+                    <input type="hidden" name="dir" value="{{dir}}"><input type="hidden" name="userid" value="{{userid}}"><input type="hidden" name="filter" value="{{filter}}">
                     <input type="hidden" name="responseid" value="{{id}}">
                     {{#grading}}<label class="mb-0" for="pf-g{{id}}">{{#str}}grade, mod_peerfeedback{{/str}}</label>
                     <input type="text" inputmode="decimal" id="pf-g{{id}}" name="grade" value="{{grade}}" class="form-control pf-gradebox">

@@ -186,4 +186,15 @@ final class response_manager_test extends \advanced_testcase {
             $this->assertSame('err_notallowed', $e->errorcode);
         }
     }
+
+    public function test_resolve_peer_rejects_posted_non_peer(): void {
+        $rm = $this->make();
+        $a = (int)$this->users['a']->id;
+        $b = (int)$this->users['b']->id;
+        $outsider = (int)$this->getDataGenerator()->create_user()->id;
+        $this->assertSame($b, $rm->resolve_peer($a, $b, true));
+        $this->assertSame($b, $rm->resolve_peer($a, $outsider, false));
+        $this->expectException(\moodle_exception::class);
+        $rm->resolve_peer($a, $outsider, true);
+    }
 }

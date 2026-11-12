@@ -44,15 +44,59 @@ $PAGE->activityheader->disable();
 $gm = new group_manager($pf, $context);
 $renderer = $PAGE->get_renderer('mod_peerfeedback');
 
-if ($action === 'pair' && !optional_param('confirm', 0, PARAM_BOOL)) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->confirm(
-        get_string('confirmpair', 'peerfeedback'),
-        new moodle_url($baseurl, ['action' => 'pair', 'confirm' => 1, 'sesskey' => sesskey()]),
-        $baseurl
-    );
-    echo $OUTPUT->footer();
-    exit;
+$confirmed = optional_param('confirm', 0, PARAM_BOOL);
+if ($action !== '' && !$confirmed) {
+    // Warn before group changes that would throw away students' saved drafts.
+    $after = $gm->membership();
+    $params = ['action' => $action];
+    switch ($action) {
+        case 'assign':
+            $userids = array_intersect(
+                array_map('intval', optional_param_array('userids', [], PARAM_INT)),
+                array_map('intval', array_keys($gm->eligible_users()))
+            );
+            $groupid = optional_param('groupid', 0, PARAM_INT);
+            foreach ($userids as $uid) {
+                $after[$uid] = $groupid ?: -1;
+            }
+            $params += ['groupid' => $groupid, 'useridlist' => implode(',', $userids)];
+            break;
+        case 'deletegroup':
+            $groupid = required_param('groupid', PARAM_INT);
+            $after = array_filter($after, fn($g) => $g !== $groupid);
+            $params['groupid'] = $groupid;
+            break;
+        case 'unassign':
+            $userid = required_param('userid', PARAM_INT);
+            unset($after[$userid]);
+            $params['userid'] = $userid;
+            break;
+        case 'random':
+            if (optional_param('reshuffle', 0, PARAM_BOOL)) {
+                $after = [];
+            }
+            $params += ['mode' => optional_param('mode', 'groups', PARAM_ALPHA), 'value' => optional_param('value', 0, PARAM_INT),
+                'reshuffle' => optional_param('reshuffle', 0, PARAM_BOOL)];
+            break;
+        case 'pair':
+            $after = [];
+            break;
+    }
+    $lost = in_array($action, ['assign', 'deletegroup', 'unassign', 'random', 'pair'], true) ? $gm->drafts_lost($after) : 0;
+    if ($lost > 0 || $action === 'pair') {
+        $message = $action === 'pair' ? get_string('confirmpair', 'peerfeedback') : '';
+        if ($lost > 0) {
+            $message = trim($message . ' ' . get_string('confirmdiscard', 'peerfeedback', $lost));
+        }
+        echo $OUTPUT->header();
+        echo $OUTPUT->confirm(
+            $message,
+            new moodle_url($baseurl, $params + ['confirm' => 1, 'sesskey' => sesskey()]),
+            $baseurl
+        );
+        echo $OUTPUT->footer();
+        exit;
+    }
 }
 
 if ($action !== '') {
@@ -61,6 +105,10 @@ if ($action !== '') {
     switch ($action) {
         case 'assign':
             $userids = optional_param_array('userids', [], PARAM_INT);
+            if (!$userids && ($list = optional_param('useridlist', '', PARAM_SEQUENCE)) !== '') {
+                // Coming back from the confirmation page, which carries the ticked users as a list.
+                $userids = explode(',', $list);
+            }
             $groupid = required_param('groupid', PARAM_INT);
             if ($groupid === 0) {
                 $groupid = $gm->create_group();

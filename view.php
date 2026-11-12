@@ -68,17 +68,9 @@ $posted = null;
 
 if ($peers) {
     $peerids = array_map('intval', array_keys($peers));
-    if (!in_array($peerid, $peerids, true)) {
-        $peerid = $peerids[0];
-        foreach ($peerids as $pid) {
-            $r = $rm->get_response($USER->id, $pid);
-            if (!$r || $r->status < 1) {
-                $peerid = $pid;
-                break;
-            }
-        }
-    }
-    if (data_submitted() && confirm_sesskey()) {
+    $posting = data_submitted() && confirm_sesskey();
+    $peerid = $rm->resolve_peer($USER->id, $peerid, $posting);
+    if ($posting) {
         $submit = optional_param('submitbtn', '', PARAM_RAW) !== '';
         $posted = [];
         foreach ($questions as $q) {

@@ -207,6 +207,46 @@ class group_manager {
     }
 
     /**
+     * Current membership as userid => groupid.
+     *
+     * @return int[]
+     */
+    public function membership(): array {
+        global $DB;
+        return array_map('intval', $DB->get_records_menu(
+            'peerfeedback_member',
+            ['peerfeedbackid' => $this->pf->id],
+            '',
+            'userid, groupid'
+        ));
+    }
+
+    /**
+     * How many saved-not-submitted drafts would be discarded if membership became $after. A draft survives only when
+     * giver and receiver end up in the same group (a self-evaluation draft survives while its author has a group).
+     *
+     * @param int[] $after userid => groupid
+     * @return int
+     */
+    public function drafts_lost(array $after): int {
+        global $DB;
+        $lost = 0;
+        $drafts = $DB->get_records(
+            'peerfeedback_response',
+            ['peerfeedbackid' => $this->pf->id, 'status' => constants::STATUS_SAVED],
+            '',
+            'id, giverid, receiverid'
+        );
+        foreach ($drafts as $d) {
+            $g = $after[(int)$d->giverid] ?? 0;
+            if (!$g || $g !== ($after[(int)$d->receiverid] ?? 0)) {
+                $lost++;
+            }
+        }
+        return $lost;
+    }
+
+    /**
      * Delete saved (not submitted) responses whose receiver is no longer a peer of the giver.
      *
      * @return int number of responses deleted

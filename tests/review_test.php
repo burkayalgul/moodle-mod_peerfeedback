@@ -172,4 +172,24 @@ final class review_test extends \advanced_testcase {
         $this->assertCount(1, $this->rm->list_for($this->u['b']->id, 'received', 'all'));
         $this->assertCount(0, $this->rm->list_for($this->u['b']->id, 'given', 'all'));
     }
+
+    public function test_outside_group_false_when_regrouped_together(): void {
+        $this->make();
+        $gm = new group_manager($this->pf, $this->context);
+        $gm->assign([$this->u['a']->id, $this->u['b']->id, $this->u['c']->id], $gm->create_group());
+        foreach ($this->rm->list_for($this->u['a']->id, 'given', 'all') as $r) {
+            $this->assertFalse($r->outsidegroup);
+        }
+    }
+
+    public function test_review_with_grading_off_keeps_stored_grade(): void {
+        global $DB;
+        $this->make();
+        $this->rm->review($this->rid('b'), 80, null, false, $this->teacher->id);
+        $this->pf->grading = 0;
+        $DB->update_record('peerfeedback', $this->pf);
+        $rm = new response_manager($this->pf, $this->context);
+        $rm->review($this->rid('b'), null, 'Nice', true, $this->teacher->id);
+        $this->assertEquals(80, $DB->get_field('peerfeedback_response', 'grade', ['id' => $this->rid('b')]));
+    }
 }

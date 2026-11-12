@@ -150,4 +150,18 @@ final class exporter_test extends \advanced_testcase {
         ], false);
         $this->assertSame([], iterator_to_array((new exporter($this->pf))->rows('giver'), false));
     }
+
+    public function test_group_column_keeps_name_after_regroup(): void {
+        global $DB;
+        $this->make();
+        $this->submit('Anna', 'Ben');
+        $name = $DB->get_field('peerfeedback_group', 'name', ['peerfeedbackid' => $this->pf->id]);
+        $gm = new \mod_peerfeedback\local\group_manager(
+            $this->pf,
+            \context_module::instance(get_coursemodule_from_instance('peerfeedback', $this->pf->id)->id)
+        );
+        $gm->pair_all(1);
+        $rows = iterator_to_array((new exporter($this->pf))->rows('giver'), false);
+        $this->assertSame($name, $rows[0][2]);
+    }
 }

@@ -439,7 +439,7 @@ class renderer extends \plugin_renderer_base {
         $canexport = has_capability('mod/peerfeedback:export', \context_module::instance($cm->id));
         $export = fn(string $by) => (new \moodle_url('/mod/peerfeedback/export.php', ['id' => $cm->id, 'by' => $by]))->out(false);
         return [
-            'cmid' => $cm->id, 'sesskey' => sesskey(), 'dir' => $dir, 'userid' => $userid,
+            'cmid' => $cm->id, 'sesskey' => sesskey(), 'dir' => $dir, 'userid' => $userid, 'filter' => $filter,
             'actionurl' => (new \moodle_url('/mod/peerfeedback/review.php'))->out(false),
             'views' => $views, 'filters' => $filters, 'users' => $list, 'hasusers' => !empty($list),
             'cards' => $cards, 'hascards' => !empty($cards),

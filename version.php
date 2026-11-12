@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_peerfeedback';
-$plugin->version   = 2026111200;
+$plugin->version   = 2026111201;
 $plugin->requires  = 2026042000;
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '0.1.0';

@@ -142,4 +142,30 @@ final class group_manager_test extends \advanced_testcase {
         $this->assertNull($this->gm->get_group_of($a->id));
         $this->assertSame([], $this->gm->get_groups());
     }
+
+    public function test_drafts_lost_counts_without_changing_anything(): void {
+        global $DB;
+        [$a, $b] = $this->setup_students(2);
+        $gid = $this->gm->create_group();
+        $this->gm->assign([$a->id, $b->id], $gid);
+        $q = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback')->create_question($this->pf->id, 'shorttext');
+        $rm = new \mod_peerfeedback\local\response_manager(
+            $this->pf,
+            \context_module::instance(get_coursemodule_from_instance('peerfeedback', $this->pf->id)->id)
+        );
+        $rm->save($a->id, $b->id, [$q->id => 'draft'], false);
+        $now = $this->gm->membership();
+        $this->assertSame(0, $this->gm->drafts_lost($now));
+        $without = $now;
+        unset($without[(int)$b->id]);
+        $this->assertSame(1, $this->gm->drafts_lost($without));
+        $moved = $now;
+        $moved[(int)$b->id] = $this->gm->create_group();
+        $this->assertSame(1, $this->gm->drafts_lost($moved));
+        $both = $moved;
+        $both[(int)$a->id] = $moved[(int)$b->id];
+        $this->assertSame(0, $this->gm->drafts_lost($both));
+        $this->assertEquals(1, $DB->count_records('peerfeedback_response'));
+        $this->assertTrue($DB->record_exists('peerfeedback_member', ['userid' => $b->id]));
+    }
 }

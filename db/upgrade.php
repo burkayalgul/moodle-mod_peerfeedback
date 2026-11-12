@@ -29,5 +29,21 @@
  * @return bool
  */
 function xmldb_peerfeedback_upgrade($oldversion) {
+    global $DB;
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2026111201) {
+        // Keep the group name with each feedback so exports still show it after regrouping.
+        $table = new xmldb_table('peerfeedback_response');
+        $field = new xmldb_field('groupname', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'groupid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $DB->execute("UPDATE {peerfeedback_response}
+                         SET groupname = (SELECT g.name FROM {peerfeedback_group} g WHERE g.id = {peerfeedback_response}.groupid)
+                       WHERE groupid > 0");
+        upgrade_mod_savepoint(true, 2026111201, 'peerfeedback');
+    }
+
     return true;
 }
