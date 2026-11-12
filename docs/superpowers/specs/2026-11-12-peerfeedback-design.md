@@ -77,7 +77,7 @@ Every question is asked once per person being evaluated. *Builder's call:* after
 
 - Peers shown as pill tabs at the top (plus "Yourself" when self-evaluation is on), with a progress bar; finished people get a green tick.
 - One person at a time: avatar/initials, name, "2 of 3", then all questions; **Back** / **Save & next**.
-- Drafts autosave on Save; the student can leave and come back. **Submit** per person sends that feedback to the teacher.
+- Saving requires all required questions answered; the student can leave and come back. **Submit** per person sends that feedback to the teacher.
 - A student may edit a submitted feedback until the teacher marks it reviewed (then it is locked) or the due date passes.
 - When teacher grading is on, a student sees the teacher's grade and comment on each feedback they gave, once reviewed.
 - Must look good and work on a phone.
@@ -128,7 +128,7 @@ Every question is asked once per person being evaluated. *Builder's call:* after
 - Students only ever see teacher grades/comments on feedback **they** gave — never on others' feedback.
 
 **Validation and dates**
-- Save (draft) does not validate; Submit enforces required questions.
+- **Owner decision:** no empty answers. Both "Save & next" and "Submit" enforce required questions; a saved-but-not-submitted feedback is complete but still editable and not yet sent to the teacher.
 - Before the open date the activity is visible but answering is blocked. After the due date, submitting and editing are blocked (no late submissions); drafts stay visible to the teacher as "not submitted".
 
 **Groups**
@@ -149,6 +149,18 @@ Every question is asked once per person being evaluated. *Builder's call:* after
 
 **Branding asset**
 - Built from the owner's local `Logos.svg` (path above) and Saira Medium (Google Fonts, OFL), text converted to outlines, committed as `pix/branding.svg`.
+
+## Moodle Plugins Directory (marketplace) release — owner requirement
+
+The owner will publish the plugin on moodle.org/plugins. Everything must meet the Marketplace submission guidelines:
+- Component `mod_peerfeedback` (no existing directory plugin with this name found 2026-11-12); repository name `moodle-mod_peerfeedback`.
+- GPL v3-or-later boilerplate in every PHP/JS file; `LICENSE` file; `README.md` (what it does, install, post-install steps, supported versions, DB support); `CHANGES.md`.
+- English strings only, all via `get_string()`, sentence case (no Capitalised Titles).
+- Privacy API provider describing every stored personal field.
+- Supported versions declared in `version.php` (`requires` = Moodle 5.2); passes `moodle-plugin-ci` (phplint, phpcs Moodle standard, phpdoc, validate, savepoints, mustache, grunt, PHPUnit, Behat) via a GitHub Actions workflow.
+- Listing text (short + full description, features, privacy note), screenshot list, and the URLs the owner must provide (public source repo, bug tracker, documentation) prepared in `docs/marketplace.md`.
+- **Branding:** the footer logo is the owner's own trademark. It ships as a separate asset with its licence stated in `README.md` / `thirdpartylibs.xml`-style note; an admin setting **"Show branding footer"** (default on) lets sites hide it, which keeps directory review simple.
+- Prior art the reviewers may compare with: *360° feedback* (`mod_threesixo`) and *Workshop* (core). Differentiators to state in the listing: activity-owned groups with random/pair tools, any survey-style question type, teacher grading of feedback quality, two-way export.
 
 ## How it gets made
 
