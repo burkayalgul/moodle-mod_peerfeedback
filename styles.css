@@ -61,6 +61,20 @@
     display: none;
 }
 
+.path-mod-peerfeedback .pf-toolbar {
+    position: relative;
+}
+
+.path-mod-peerfeedback .pf-random-form {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 20;
+    width: 36rem;
+    max-width: 100%;
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .12);
+}
+
 .path-mod-peerfeedback .pf-branding {
     text-align: center;
     margin: 2rem 0 .5rem;
@@ -90,20 +104,20 @@
 
 .path-mod-peerfeedback .pf-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: .4rem;
-    overflow-x: auto;
-    padding-bottom: .25rem;
     margin-bottom: .75rem;
 }
 
 .path-mod-peerfeedback .pf-tab {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
+    max-width: 100%;
     padding: .4rem .9rem;
     border-radius: 1.2rem;
     background: #f1f3f6;
     color: #1d2125;
     text-decoration: none;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
     border: 1px solid transparent;
 }
 
