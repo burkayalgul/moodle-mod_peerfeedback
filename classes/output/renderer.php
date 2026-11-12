@@ -99,6 +99,53 @@ class renderer extends \plugin_renderer_base {
     }
 
     /**
+     * Template context for the group management page (layout A).
+     *
+     * @param \cm_info $cm
+     * @param \mod_peerfeedback\local\group_manager $gm
+     * @return array
+     */
+    public function groups_context(\cm_info $cm, \mod_peerfeedback\local\group_manager $gm): array {
+        $users = $gm->eligible_users();
+        $groups = $gm->get_groups();
+        $groupof = [];
+        foreach ($groups as $g) {
+            foreach ($g->members as $uid) {
+                $groupof[$uid] = $g;
+            }
+        }
+        $rows = [];
+        foreach ($users as $u) {
+            $g = $groupof[$u->id] ?? null;
+            $rows[] = ['userid' => $u->id, 'fullname' => fullname($u), 'groupname' => $g ? format_string($g->name) : null];
+        }
+        $boxes = [];
+        $options = [];
+        foreach ($groups as $g) {
+            $members = [];
+            foreach ($g->members as $uid) {
+                if (isset($users[$uid])) {
+                    $members[] = ['userid' => $uid, 'fullname' => fullname($users[$uid])];
+                }
+            }
+            $boxes[] = ['groupid' => $g->id, 'name' => format_string($g->name), 'count' => count($members),
+                'members' => $members, 'empty' => !$members];
+            $options[] = ['groupid' => $g->id, 'name' => format_string($g->name)];
+        }
+        return [
+            'actionurl' => (new \moodle_url('/mod/peerfeedback/groups.php'))->out(false),
+            'cmid' => $cm->id,
+            'sesskey' => sesskey(),
+            'users' => $rows,
+            'hasusers' => !empty($rows),
+            'groups' => $boxes,
+            'groupoptions' => $options,
+            'unassignedcount' => count($gm->unassigned_userids()),
+            'pairurl' => (new \moodle_url('/mod/peerfeedback/groups.php', ['id' => $cm->id, 'action' => 'pair']))->out(false),
+        ];
+    }
+
+    /**
      * Small EduZ logo + signature shown at the bottom of every plugin page.
      *
      * @return string

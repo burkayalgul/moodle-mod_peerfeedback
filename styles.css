@@ -1,0 +1,14 @@
+.path-mod-peerfeedback .pf-badge-group {background: #e7f0fa; color: #0b5ea8;}
+.path-mod-peerfeedback .pf-badge-none {background: #fdf0e6; color: #8a4500;}
+.path-mod-peerfeedback .pf-userlist .pf-check {width: 2.5rem;}
+.path-mod-peerfeedback .pf-groupboxes {display: grid; gap: .75rem; margin-top: 1rem;}
+.path-mod-peerfeedback .pf-groupbox {border: 1px solid #dee2e6; border-radius: .5rem; padding: .75rem;}
+.path-mod-peerfeedback .pf-groupname {max-width: 14rem;}
+.path-mod-peerfeedback .pf-chips {display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem;}
+.path-mod-peerfeedback .pf-chip {display: inline-flex; align-items: center; gap: .25rem; background: #f1f3f6;
+    border-radius: 1rem; padding: .15rem .3rem .15rem .7rem; margin: 0;}
+.path-mod-peerfeedback .pf-chip-x {border: 0; background: transparent; line-height: 1; padding: 0 .3rem; font-size: 1.1rem;}
+.path-mod-peerfeedback .pf-random > summary {list-style: none;}
+.path-mod-peerfeedback .pf-random > summary::-webkit-details-marker {display: none;}
+.path-mod-peerfeedback .pf-branding {text-align: center; margin: 2rem 0 .5rem;}
+.path-mod-peerfeedback .pf-branding img {height: 30px; width: auto;}
