@@ -74,7 +74,7 @@ Nothing is sent outside your Moodle site. All data is covered by the Privacy API
 - **Bug tracker URL:** GitHub Issues of that repository.
 - **Documentation URL:** GitHub README or wiki.
 - **Maintainer:** Burkay ALGUL (moodle.org account).
-- **Licence:** GNU GPL v3 or later (code). The EduZ logo in the branding footer is the owner's trademark; it is stated separately in the README, and sites can hide the footer in the admin settings.
+- **Licence:** GNU GPL v3 or later. The small footer signature ("eduzhub.ro, designed by Burkay ALGUL") is plain text in the Saira typeface (OFL), converted to outlines; sites can hide it in the admin settings.
 
 ## Release checklist
 

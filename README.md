@@ -31,11 +31,10 @@ Students give structured feedback to each other inside teacher-defined groups. T
 3. Open the **Groups** tab and build groups (tick names, Random…, or Pair everyone).
 4. Students open the activity and give feedback. Teachers use the **Review** tab and **Export**.
 
-## Branding and licences
+## Licence
 
-- Plugin code: GNU GPL v3 or later (see `LICENSE`).
-- `pix/branding.svg` contains the EduZ logo, a trademark of Burkay ALGUL. It is **not** covered by the GPL. Sites can hide it under *Site administration → Plugins → Activity modules → Peer feedback → Show branding footer*.
-- The signature text in `pix/branding.svg` uses outlines from the Saira typeface (SIL Open Font License 1.1).
+- GNU GPL v3 or later (see `LICENSE`).
+- The footer signature `pix/branding.svg` ("eduzhub.ro, designed by Burkay ALGUL") is text drawn from the Saira typeface (SIL Open Font License 1.1), converted to outlines. Sites can hide it under *Site administration → Plugins → Activity modules → Peer feedback → Show branding footer*.
 
 ## Copyright
 

@@ -451,7 +451,7 @@ class renderer extends \plugin_renderer_base {
     }
 
     /**
-     * Small EduZ logo + signature shown at the bottom of every plugin page.
+     * Small "eduzhub.ro, designed by Burkay ALGUL" signature shown at the bottom of every plugin page.
      *
      * @return string
      */

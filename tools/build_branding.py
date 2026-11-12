@@ -1,63 +1,62 @@
 #!/usr/bin/env python3
-"""Build pix/branding.svg: the full EduZ logo cropped from the owner's Logos.svg sheet,
-with "designed by Burkay ALGUL" in Saira Medium (OFL) converted to outlines beneath it.
-
-Usage: python3 -I tools/build_branding.py <Logos.svg> <Saira-Medium.ttf> <out.svg>
+"""Build pix/branding.svg: the "eduzhub.ro" wordmark with "designed by Burkay ALGUL" beneath it,
+both set in Saira (SIL Open Font License 1.1) and converted to outlines, so no font is needed.
+Usage: python3 -I tools/build_branding.py <Saira-VF.ttf> <out.svg>
 Requires fontTools. Not shipped in the plugin zip.
 """
-import re
 import sys
 
 from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.varLib.instancer import instantiateVariableFont
 from fontTools.ttLib import TTFont
 
-CROP_X, CROP_Y, WIDTH, LOGO_H = 186, 132, 1110, 298
-TEXT = "designed by Burkay ALGUL"
-TEXT_WIDTH = WIDTH / 2
-BASELINE = 362
-TOTAL_H = 372
+WORD, WORD_WGHT = "eduzhub.ro", 600
+SIG, SIG_WGHT = "designed by Burkay ALGUL", 500
+WIDTH = 1000          # wordmark width in SVG units
+SIG_WIDTH = 820       # signature width, centred under the wordmark
+GAP = 70              # space between wordmark baseline and signature cap height
 FILL = "#0a1d3f"
 
 
-def text_paths(font_path):
-    font = TTFont(font_path)
-    cmap = font.getBestCmap()
-    glyphset = font.getGlyphSet()
-    hmtx = font["hmtx"]
-    names = [cmap[ord(ch)] for ch in TEXT]
-    advance = sum(hmtx[n][0] for n in names)
-    scale = TEXT_WIDTH / advance
-    x = CROP_X + (WIDTH - TEXT_WIDTH) / 2
-    parts = []
+def instance(path, wght):
+    return instantiateVariableFont(TTFont(path), {"wght": wght, "wdth": 100})
+
+
+def line(font, text, width, x0, baseline):
+    """Outline paths for text scaled to the given width; returns (svg, scale)."""
+    cmap, glyphs, hmtx = font.getBestCmap(), font.getGlyphSet(), font["hmtx"]
+    names = [cmap[ord(c)] for c in text]
+    scale = width / sum(hmtx[n][0] for n in names)
+    x, parts = x0, []
     for n in names:
-        pen = SVGPathPen(glyphset)
-        glyphset[n].draw(pen)
-        d = pen.getCommands()
-        if d:
-            parts.append(
-                f'<path transform="translate({x:.3f} {CROP_Y + BASELINE}) scale({scale:.6f} {-scale:.6f})" d="{d}"/>'
-            )
+        pen = SVGPathPen(glyphs)
+        glyphs[n].draw(pen)
+        if pen.getCommands():
+            parts.append(f'<path transform="translate({x:.2f} {baseline:.2f}) scale({scale:.5f} {-scale:.5f})" '
+                         f'd="{pen.getCommands()}"/>')
         x += hmtx[n][0] * scale
-    return "\n".join(parts)
+    return "\n".join(parts), scale
 
 
-def main(sheet, font_path, out):
-    svg = open(sheet, encoding="utf-8").read()
-    svg = re.sub(r"<sodipodi:namedview.*?/>", "", svg, flags=re.S)
-    svg = re.sub(r"<metadata.*?</metadata>", "", svg, flags=re.S)
-    svg = re.sub(r'\s(inkscape|sodipodi):[a-zA-Z-]+="[^"]*"', "", svg)
-    svg = re.sub(r'\sxmlns:(inkscape|sodipodi)="[^"]*"', "", svg)
-    svg = re.sub(r'width="[^"]*mm"', f'width="{WIDTH}"', svg, count=1)
-    svg = re.sub(r'height="[^"]*mm"', f'height="{TOTAL_H}"', svg, count=1)
-    svg = re.sub(r'viewBox="[^"]*"', f'viewBox="{CROP_X} {CROP_Y} {WIDTH} {TOTAL_H}"', svg, count=1)
-    clip = (f'<clipPath id="pf-crop"><rect x="{CROP_X}" y="{CROP_Y}" width="{WIDTH}" height="{LOGO_H}"/></clipPath>')
-    # Wrap original content in a clip so other logos on the sheet never bleed in.
-    opening_end = svg.index(">", svg.index("<svg")) + 1
-    svg = (svg[:opening_end] + f"<defs>{clip}</defs><g clip-path=\"url(#pf-crop)\">"
-           + svg[opening_end:].replace("</svg>", "")
-           + f'</g>\n<g fill="{FILL}">\n{text_paths(font_path)}\n</g>\n</svg>\n')
+def main(vf, out):
+    word_font, sig_font = instance(vf, WORD_WGHT), instance(vf, SIG_WGHT)
+    asc = word_font["OS/2"].sCapHeight or 700
+    # Wordmark: its ascender (letters d, h, b) sets the top edge.
+    probe = word_font.getBestCmap()
+    tall = word_font["glyf"][probe[ord("d")]]
+    _, wscale = line(word_font, WORD, WIDTH, 0, 0)
+    word_base = tall.yMax * wscale
+    word_svg, _ = line(word_font, WORD, WIDTH, 0, word_base)
+    sig_tmp, sscale = line(sig_font, SIG, SIG_WIDTH, 0, 0)
+    sig_cap = (sig_font["OS/2"].sCapHeight or asc) * sscale
+    sig_base = word_base + GAP + sig_cap
+    sig_svg, _ = line(sig_font, SIG, SIG_WIDTH, (WIDTH - SIG_WIDTH) / 2, sig_base)
+    desc = abs(sig_font["glyf"][sig_font.getBestCmap()[ord("y")]].yMin) * sscale
+    height = sig_base + desc
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height:.0f}" '
+           f'width="{WIDTH}" height="{height:.0f}">\n<g fill="{FILL}">\n{word_svg}\n{sig_svg}\n</g>\n</svg>\n')
     open(out, "w", encoding="utf-8").write(svg)
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:3])
