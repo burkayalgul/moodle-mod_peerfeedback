@@ -28,7 +28,6 @@ use mod_peerfeedback\local\response_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(custom_completion::class)]
 final class completion_test extends \advanced_testcase {
-
     public function test_completion_complete_after_all_peers_submitted(): void {
         global $DB, $CFG;
         require_once($CFG->libdir . '/completionlib.php');
@@ -37,7 +36,8 @@ final class completion_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         [$a, $b, $c] = [$this->getDataGenerator()->create_and_enrol($course), $this->getDataGenerator()->create_and_enrol($course),
             $this->getDataGenerator()->create_and_enrol($course)];
-        $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id, 'completion' => COMPLETION_TRACKING_AUTOMATIC,
+        $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
             'completionsubmit' => 1]);
         $pf = $DB->get_record('peerfeedback', ['id' => $mod->id]);
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback');
@@ -62,7 +62,8 @@ final class completion_test extends \advanced_testcase {
         $CFG->enablecompletion = 1;
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $a = $this->getDataGenerator()->create_and_enrol($course);
-        $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id, 'completion' => COMPLETION_TRACKING_AUTOMATIC,
+        $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
             'completionsubmit' => 1]);
         $cm = get_fast_modinfo($course)->get_cm($mod->cmid);
         $this->assertSame(COMPLETION_INCOMPLETE, (new custom_completion($cm, (int)$a->id))->get_state('completionsubmit'));

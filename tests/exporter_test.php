@@ -29,7 +29,6 @@ use mod_peerfeedback\local\response_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(exporter::class)]
 final class exporter_test extends \advanced_testcase {
-
     /** @var \stdClass */
     private $pf;
     /** @var array question ids by key */
@@ -47,17 +46,32 @@ final class exporter_test extends \advanced_testcase {
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         foreach (['Anna', 'Ben', 'Cem'] as $name) {
-            $this->u[$name] = $this->getDataGenerator()->create_and_enrol($course, 'student',
-                ['firstname' => $name, 'lastname' => 'Test']);
+            $this->u[$name] = $this->getDataGenerator()->create_and_enrol(
+                $course,
+                'student',
+                ['firstname' => $name, 'lastname' => 'Test']
+            );
         }
         $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id]);
         $this->pf = $DB->get_record('peerfeedback', ['id' => $mod->id]);
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback');
         $gen->create_group($this->pf->id, array_column($this->u, 'id'));
         $gen->create_question($this->pf->id, 'heading', [], false, 'Intro');
-        $this->q['multi'] = $gen->create_question($this->pf->id, 'multichoice', ['options' => ['A, x', '"B"', 'C']], true, 'Strengths')->id;
+        $this->q['multi'] = $gen->create_question(
+            $this->pf->id,
+            'multichoice',
+            ['options' => ['A, x', '"B"', 'C']],
+            true,
+            'Strengths'
+        )->id;
         $this->q['long'] = $gen->create_question($this->pf->id, 'longtext', [], true, 'Improve')->id;
-        $this->q['grid'] = $gen->create_question($this->pf->id, 'grid', ['criteria' => ['Part', 'Resp'], 'max' => 5], true, 'Rate')->id;
+        $this->q['grid'] = $gen->create_question(
+            $this->pf->id,
+            'grid',
+            ['criteria' => ['Part', 'Resp'], 'max' => 5],
+            true,
+            'Rate'
+        )->id;
         $this->rm = new response_manager($this->pf, \context_module::instance($mod->cmid));
     }
 
@@ -110,8 +124,10 @@ final class exporter_test extends \advanced_testcase {
         $rows = iterator_to_array((new exporter($this->pf))->rows('receiver'), false);
         $this->assertSame(['Anna Test', 'Ben Test', 'Cem Test'], array_column($rows, 1));
         $rows = iterator_to_array((new exporter($this->pf))->rows('giver'), false);
-        $this->assertSame([['Anna Test', 'Ben Test'], ['Anna Test', 'Cem Test'], ['Ben Test', 'Anna Test']],
-            array_map(fn($r) => [$r[0], $r[1]], $rows));
+        $this->assertSame(
+            [['Anna Test', 'Ben Test'], ['Anna Test', 'Cem Test'], ['Ben Test', 'Anna Test']],
+            array_map(fn($r) => [$r[0], $r[1]], $rows)
+        );
     }
 
     public function test_option_added_after_submission_exports_old_answers_correctly(): void {

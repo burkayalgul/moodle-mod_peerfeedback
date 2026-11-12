@@ -27,7 +27,6 @@ use mod_peerfeedback\local\response_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 final class backup_restore_test extends \advanced_testcase {
-
     /**
      * Build a course with one activity, 2 questions, 1 group of 2 and one submitted response; duplicate it.
      *
@@ -53,8 +52,14 @@ final class backup_restore_test extends \advanced_testcase {
         $rm->save($a->id, $b->id, [$q->id => ['0' => '3', '1' => '4']], true);
         $rm->review((int)$rm->get_response($a->id, $b->id)->id, 75, 'ok', true, $USER->id);
 
-        $bc = new \backup_controller(\backup::TYPE_1COURSE, $course->id, \backup::FORMAT_MOODLE, \backup::INTERACTIVE_NO,
-            \backup::MODE_IMPORT, $USER->id);
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $course->id,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT,
+            $USER->id
+        );
         $bc->get_plan()->get_setting('users')->set_status(\backup_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('users')->set_value($userdata);
         $bc->execute_plan();
@@ -62,8 +67,14 @@ final class backup_restore_test extends \advanced_testcase {
         $bc->destroy();
 
         $newcourseid = \restore_dbops::create_new_course('Copy', 'copy', $course->category);
-        $rc = new \restore_controller($backupid, $newcourseid, \backup::INTERACTIVE_NO, \backup::MODE_IMPORT, $USER->id,
-            \backup::TARGET_NEW_COURSE);
+        $rc = new \restore_controller(
+            $backupid,
+            $newcourseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT,
+            $USER->id,
+            \backup::TARGET_NEW_COURSE
+        );
         $rc->get_plan()->get_setting('users')->set_status(\backup_setting::NOT_LOCKED);
         $rc->get_plan()->get_setting('users')->set_value($userdata);
         if ($userdata) {

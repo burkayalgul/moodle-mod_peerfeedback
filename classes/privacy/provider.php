@@ -36,7 +36,6 @@ class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
-
     /** SQL joining a module context to the activity. */
     private const CTXJOIN = "JOIN {course_modules} cm ON cm.id = ctx.instanceid AND ctx.contextlevel = :ctxlevel
                              JOIN {modules} m ON m.id = cm.module AND m.name = 'peerfeedback'
@@ -79,11 +78,15 @@ class provider implements
     public static function get_contexts_for_userid(int $userid): contextlist {
         $list = new contextlist();
         $base = "SELECT ctx.id FROM {context} ctx " . self::CTXJOIN;
-        $list->add_from_sql("$base JOIN {peerfeedback_member} mb ON mb.peerfeedbackid = pf.id WHERE mb.userid = :u",
-            ['ctxlevel' => CONTEXT_MODULE, 'u' => $userid]);
-        $list->add_from_sql("$base JOIN {peerfeedback_response} r ON r.peerfeedbackid = pf.id
+        $list->add_from_sql(
+            "$base JOIN {peerfeedback_member} mb ON mb.peerfeedbackid = pf.id WHERE mb.userid = :u",
+            ['ctxlevel' => CONTEXT_MODULE, 'u' => $userid]
+        );
+        $list->add_from_sql(
+            "$base JOIN {peerfeedback_response} r ON r.peerfeedbackid = pf.id
             WHERE r.giverid = :u1 OR r.receiverid = :u2 OR r.reviewerid = :u3",
-            ['ctxlevel' => CONTEXT_MODULE, 'u1' => $userid, 'u2' => $userid, 'u3' => $userid]);
+            ['ctxlevel' => CONTEXT_MODULE, 'u1' => $userid, 'u2' => $userid, 'u3' => $userid]
+        );
         return $list;
     }
 
@@ -121,9 +124,11 @@ class provider implements
                 continue;
             }
             $data = helper::get_context_data($context, $contextlist->get_user());
-            $group = $DB->get_field_sql("SELECT g.name FROM {peerfeedback_member} mb
+            $group = $DB->get_field_sql(
+                "SELECT g.name FROM {peerfeedback_member} mb
                 JOIN {peerfeedback_group} g ON g.id = mb.groupid WHERE mb.peerfeedbackid = ? AND mb.userid = ?",
-                [$pf->id, $userid]);
+                [$pf->id, $userid]
+            );
             if ($group !== false) {
                 $data->group = format_string($group);
             }
@@ -140,27 +145,40 @@ class provider implements
                 $given[] = $item;
             }
             if ($given) {
-                writer::with_context($context)->export_data([get_string('privacy:given', 'peerfeedback')],
-                    (object)['feedback' => $given]);
+                writer::with_context($context)->export_data(
+                    [get_string('privacy:given', 'peerfeedback')],
+                    (object)['feedback' => $given]
+                );
             }
             $received = [];
-            foreach ($DB->get_records_select('peerfeedback_response', 'peerfeedbackid = ? AND receiverid = ? AND status >= 1',
-                    [$pf->id, $userid], 'id') as $r) {
+            foreach (
+                $DB->get_records_select(
+                    'peerfeedback_response',
+                    'peerfeedbackid = ? AND receiverid = ? AND status >= 1',
+                    [$pf->id, $userid],
+                    'id'
+                ) as $r
+            ) {
                 $received[] = self::response_export($r, $questions);
             }
             if ($received) {
-                writer::with_context($context)->export_data([get_string('privacy:received', 'peerfeedback')],
-                    (object)['feedback' => $received]);
+                writer::with_context($context)->export_data(
+                    [get_string('privacy:received', 'peerfeedback')],
+                    (object)['feedback' => $received]
+                );
             }
             $reviews = [];
-            foreach ($DB->get_records('peerfeedback_response', ['peerfeedbackid' => $pf->id, 'reviewerid' => $userid], 'id') as $r) {
+            $reviewed = $DB->get_records('peerfeedback_response', ['peerfeedbackid' => $pf->id, 'reviewerid' => $userid], 'id');
+            foreach ($reviewed as $r) {
                 $reviews[] = (object)['grade' => $r->grade === null ? null : (float)$r->grade,
                     'comment' => $r->teachercomment,
                     'timereviewed' => $r->timereviewed ? transform::datetime($r->timereviewed) : null];
             }
             if ($reviews) {
-                writer::with_context($context)->export_data([get_string('privacy:reviews', 'peerfeedback')],
-                    (object)['reviews' => $reviews]);
+                writer::with_context($context)->export_data(
+                    [get_string('privacy:reviews', 'peerfeedback')],
+                    (object)['reviews' => $reviews]
+                );
             }
         }
     }
@@ -175,8 +193,11 @@ class provider implements
         if (!$pf = self::pf_for_context($context)) {
             return;
         }
-        $DB->delete_records_select('peerfeedback_answer',
-            'responseid IN (SELECT id FROM {peerfeedback_response} WHERE peerfeedbackid = ?)', [$pf->id]);
+        $DB->delete_records_select(
+            'peerfeedback_answer',
+            'responseid IN (SELECT id FROM {peerfeedback_response} WHERE peerfeedbackid = ?)',
+            [$pf->id]
+        );
         $DB->delete_records('peerfeedback_response', ['peerfeedbackid' => $pf->id]);
         $DB->delete_records('peerfeedback_member', ['peerfeedbackid' => $pf->id]);
     }
@@ -218,13 +239,21 @@ class provider implements
         $where = "peerfeedbackid = :pfid AND (giverid $in1 OR receiverid $in2)";
         $params = ['pfid' => $pf->id] + $p1 + $p2;
         $affected = $DB->get_fieldset_select('peerfeedback_response', 'DISTINCT giverid', $where, $params);
-        $DB->delete_records_select('peerfeedback_answer',
-            "responseid IN (SELECT id FROM {peerfeedback_response} WHERE $where)", $params);
+        $DB->delete_records_select(
+            'peerfeedback_answer',
+            "responseid IN (SELECT id FROM {peerfeedback_response} WHERE $where)",
+            $params
+        );
         $DB->delete_records_select('peerfeedback_response', $where, $params);
         [$in, $p] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $DB->delete_records_select('peerfeedback_member', "peerfeedbackid = :pfid AND userid $in", ['pfid' => $pf->id] + $p);
-        $DB->set_field_select('peerfeedback_response', 'reviewerid', null, "peerfeedbackid = :pfid AND reviewerid $in",
-            ['pfid' => $pf->id] + $p);
+        $DB->set_field_select(
+            'peerfeedback_response',
+            'reviewerid',
+            null,
+            "peerfeedbackid = :pfid AND reviewerid $in",
+            ['pfid' => $pf->id] + $p
+        );
         require_once($CFG->dirroot . '/mod/peerfeedback/lib.php');
         foreach (array_diff($affected, $userids) as $giverid) {
             peerfeedback_update_grades($pf, (int)$giverid);
@@ -248,7 +277,10 @@ class provider implements
             }
         }
         return (object)[
-            'status' => get_string($r->status >= 2 ? 'statusreviewed' : ($r->status >= 1 ? 'statussubmitted' : 'statussaved'), 'peerfeedback'),
+            'status' => get_string(
+                $r->status >= 2 ? 'statusreviewed' : ($r->status >= 1 ? 'statussubmitted' : 'statussaved'),
+                'peerfeedback'
+            ),
             'timesubmitted' => $r->timesubmitted ? transform::datetime($r->timesubmitted) : null,
             'answers' => $out,
         ];

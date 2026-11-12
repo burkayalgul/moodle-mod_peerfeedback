@@ -27,7 +27,6 @@ use mod_peerfeedback\local\group_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(group_manager::class)]
 final class group_manager_test extends \advanced_testcase {
-
     /** @var \stdClass */
     private $course;
     /** @var \stdClass */
@@ -121,7 +120,7 @@ final class group_manager_test extends \advanced_testcase {
         $g = $this->gm->create_group();
         $this->gm->assign([$a->id, $b->id], $g);
         $q = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback')->create_question($this->pf->id, 'shorttext');
-        $mk = function(int $giver, int $receiver, int $status) use ($DB, $g, $q) {
+        $mk = function (int $giver, int $receiver, int $status) use ($DB, $g, $q) {
             $id = $DB->insert_record('peerfeedback_response', ['peerfeedbackid' => $this->pf->id, 'giverid' => $giver,
                 'receiverid' => $receiver, 'groupid' => $g, 'status' => $status, 'timecreated' => 1, 'timemodified' => 1]);
             $DB->insert_record('peerfeedback_answer', ['responseid' => $id, 'questionid' => $q->id, 'value' => 'x']);

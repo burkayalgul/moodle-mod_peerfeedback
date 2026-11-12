@@ -26,7 +26,6 @@ use mod_peerfeedback\local\qtype\base;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends \plugin_renderer_base {
-
     /**
      * Teacher navigation tabs.
      *
@@ -37,19 +36,31 @@ class renderer extends \plugin_renderer_base {
     public function tabs(\cm_info $cm, string $current): string {
         $context = \context_module::instance($cm->id);
         $tabs = [];
-        $tabs[] = new \tabobject('overview', new \moodle_url('/mod/peerfeedback/view.php', ['id' => $cm->id]),
-            get_string('overview', 'peerfeedback'));
+        $tabs[] = new \tabobject(
+            'overview',
+            new \moodle_url('/mod/peerfeedback/view.php', ['id' => $cm->id]),
+            get_string('overview', 'peerfeedback')
+        );
         if (has_capability('mod/peerfeedback:managequestions', $context)) {
-            $tabs[] = new \tabobject('questions', new \moodle_url('/mod/peerfeedback/questions.php', ['id' => $cm->id]),
-                get_string('questions', 'peerfeedback'));
+            $tabs[] = new \tabobject(
+                'questions',
+                new \moodle_url('/mod/peerfeedback/questions.php', ['id' => $cm->id]),
+                get_string('questions', 'peerfeedback')
+            );
         }
         if (has_capability('mod/peerfeedback:managegroups', $context)) {
-            $tabs[] = new \tabobject('groups', new \moodle_url('/mod/peerfeedback/groups.php', ['id' => $cm->id]),
-                get_string('groups', 'peerfeedback'));
+            $tabs[] = new \tabobject(
+                'groups',
+                new \moodle_url('/mod/peerfeedback/groups.php', ['id' => $cm->id]),
+                get_string('groups', 'peerfeedback')
+            );
         }
         if (has_capability('mod/peerfeedback:review', $context)) {
-            $tabs[] = new \tabobject('review', new \moodle_url('/mod/peerfeedback/review.php', ['id' => $cm->id]),
-                get_string('review', 'peerfeedback'));
+            $tabs[] = new \tabobject(
+                'review',
+                new \moodle_url('/mod/peerfeedback/review.php', ['id' => $cm->id]),
+                get_string('review', 'peerfeedback')
+            );
         }
         return $this->tabtree($tabs, $current);
     }
@@ -71,8 +82,10 @@ class renderer extends \plugin_renderer_base {
         foreach ($questions as $q) {
             $i++;
             $answerable = base::get($q->qtype)->is_answerable();
-            $url = fn(array $p) => (new \moodle_url('/mod/peerfeedback/questions.php',
-                ['id' => $cm->id, 'qid' => $q->id, 'sesskey' => sesskey()] + $p))->out(false);
+            $url = fn(array $p) => (new \moodle_url(
+                '/mod/peerfeedback/questions.php',
+                ['id' => $cm->id, 'qid' => $q->id, 'sesskey' => sesskey()] + $p
+            ))->out(false);
             $items[] = [
                 'number' => $answerable ? 'Q' . (++$n) : '',
                 'text' => format_string($q->questiontext),
@@ -183,8 +196,16 @@ class renderer extends \plugin_renderer_base {
      * @param array $errors questionid => error key
      * @return array
      */
-    public function answer_context(\cm_info $cm, \stdClass $pf, \mod_peerfeedback\local\response_manager $rm,
-            array $peers, int $peerid, array $questions, ?array $posted, array $errors): array {
+    public function answer_context(
+        \cm_info $cm,
+        \stdClass $pf,
+        \mod_peerfeedback\local\response_manager $rm,
+        array $peers,
+        int $peerid,
+        array $questions,
+        ?array $posted,
+        array $errors
+    ): array {
         global $USER;
         $ctx = ['cmid' => $cm->id, 'sesskey' => sesskey(),
             'actionurl' => (new \moodle_url('/mod/peerfeedback/view.php'))->out(false)];
@@ -226,8 +247,13 @@ class renderer extends \plugin_renderer_base {
             $type = \mod_peerfeedback\local\qtype\base::get($q->qtype);
             $raw = $posted !== null ? ($posted[$q->id] ?? null) : null;
             $value = $posted !== null ? $type->normalise($q->config, $raw) : ($stored[$q->id] ?? null);
-            $items[] = $this->question_item($q, $type->is_answerable() ? 'Q' . (++$n) : '', $value,
-                isset($errors[$q->id]) ? get_string($errors[$q->id], 'peerfeedback') : null, !$canedit);
+            $items[] = $this->question_item(
+                $q,
+                $type->is_answerable() ? 'Q' . (++$n) : '',
+                $value,
+                isset($errors[$q->id]) ? get_string($errors[$q->id], 'peerfeedback') : null,
+                !$canedit
+            );
         }
         $pos = array_search($peerid, $peerids, true);
         $statuskey = !$response ? 'statusnotstarted' : ['statussaved', 'statussubmitted', 'statusreviewed'][(int)$response->status];
@@ -245,7 +271,8 @@ class renderer extends \plugin_renderer_base {
             'progresstext' => get_string('progress', 'peerfeedback', (object)$progress),
             'peerid' => $peerid,
             'peername' => $peerid == $USER->id ? get_string('yourself', 'peerfeedback') : fullname($peer),
-            'initials' => \core_text::strtoupper(\core_text::substr($peer->firstname, 0, 1) . \core_text::substr($peer->lastname, 0, 1)),
+            'initials' => \core_text::strtoupper(\core_text::substr($peer->firstname, 0, 1) .
+                \core_text::substr($peer->lastname, 0, 1)),
             'position' => get_string('position', 'peerfeedback', (object)['n' => $pos + 1, 'total' => count($peers)]),
             'status' => get_string($statuskey, 'peerfeedback'),
             'questions' => $items,
@@ -273,7 +300,10 @@ class renderer extends \plugin_renderer_base {
             'required' => (bool)$q->required, 'error' => $error, 'readonly' => $readonly, 'is' . $q->qtype => true];
         switch ($q->qtype) {
             case 'rating':
-                $item['options'] = array_map(fn($i) => ['value' => $i, 'checked' => (string)$i === $value], range(1, (int)$c['max']));
+                $item['options'] = array_map(
+                    fn($i) => ['value' => $i, 'checked' => (string)$i === $value],
+                    range(1, (int)$c['max'])
+                );
                 $item['minlabel'] = $c['minlabel'] ?? '';
                 $item['maxlabel'] = $c['maxlabel'] ?? '';
                 break;
@@ -292,7 +322,9 @@ class renderer extends \plugin_renderer_base {
                 $item['criteria'] = [];
                 foreach ($c['criteria'] as $i => $label) {
                     $item['criteria'][] = ['index' => $i, 'label' => format_string($label), 'options' => array_map(
-                        fn($v) => ['value' => $v, 'checked' => (int)($ratings[(string)$i] ?? 0) === $v], range(1, (int)$c['max']))];
+                        fn($v) => ['value' => $v, 'checked' => (int)($ratings[(string)$i] ?? 0) === $v],
+                        range(1, (int)$c['max'])
+                    )];
                 }
                 break;
             case 'number':
@@ -346,11 +378,20 @@ class renderer extends \plugin_renderer_base {
      * @param string $filter all|notreviewed|reviewed
      * @return array
      */
-    public function review_context(\cm_info $cm, \stdClass $pf, \mod_peerfeedback\local\response_manager $rm,
-            array $users, int $userid, string $dir, string $filter): array {
+    public function review_context(
+        \cm_info $cm,
+        \stdClass $pf,
+        \mod_peerfeedback\local\response_manager $rm,
+        array $users,
+        int $userid,
+        string $dir,
+        string $filter
+    ): array {
         global $DB;
-        $url = fn(array $p) => (new \moodle_url('/mod/peerfeedback/review.php',
-            $p + ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'userid' => $userid]))->out(false);
+        $url = fn(array $p) => (new \moodle_url(
+            '/mod/peerfeedback/review.php',
+            $p + ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'userid' => $userid]
+        ))->out(false);
         $field = $dir === 'received' ? 'receiverid' : 'giverid';
         $counts = [];
         $sql = "SELECT $field AS uid, SUM(CASE WHEN status >= 1 THEN 1 ELSE 0 END) AS submitted,

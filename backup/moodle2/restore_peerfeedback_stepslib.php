@@ -22,7 +22,6 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_peerfeedback_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * Paths to process.
      *
@@ -38,8 +37,10 @@ class restore_peerfeedback_activity_structure_step extends restore_activity_stru
         if ($userinfo) {
             $paths[] = new restore_path_element('peerfeedback_member', '/activity/peerfeedback/groups/group/members/member');
             $paths[] = new restore_path_element('peerfeedback_response', '/activity/peerfeedback/responses/response');
-            $paths[] = new restore_path_element('peerfeedback_answer',
-                '/activity/peerfeedback/responses/response/answers/answer');
+            $paths[] = new restore_path_element(
+                'peerfeedback_answer',
+                '/activity/peerfeedback/responses/response/answers/answer'
+            );
         }
         return $this->prepare_activity_structure($paths);
     }

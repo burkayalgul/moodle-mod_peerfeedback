@@ -29,7 +29,6 @@ use mod_peerfeedback\local\student_view;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(student_view::class)]
 final class student_view_test extends \advanced_testcase {
-
     /** @var \stdClass */
     private $pf;
     /** @var \stdClass[] */
@@ -46,11 +45,16 @@ final class student_view_test extends \advanced_testcase {
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         foreach (['a', 'b', 'c', 'd', 'e'] as $k) {
-            $this->u[$k] = $this->getDataGenerator()->create_and_enrol($course, 'student',
-                ['firstname' => 'First' . $k, 'lastname' => 'Last' . $k]);
+            $this->u[$k] = $this->getDataGenerator()->create_and_enrol(
+                $course,
+                'student',
+                ['firstname' => 'First' . $k, 'lastname' => 'Last' . $k]
+            );
         }
-        $mod = $this->getDataGenerator()->create_module('peerfeedback',
-            ['course' => $course->id, 'visibility' => $visibility, 'grading' => $grading]);
+        $mod = $this->getDataGenerator()->create_module(
+            'peerfeedback',
+            ['course' => $course->id, 'visibility' => $visibility, 'grading' => $grading]
+        );
         $this->pf = $DB->get_record('peerfeedback', ['id' => $mod->id]);
         $gen = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback');
         $gen->create_group($this->pf->id, [$this->u['a']->id, $this->u['b']->id, $this->u['c']->id]);

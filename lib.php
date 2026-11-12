@@ -178,8 +178,12 @@ function peerfeedback_update_grades($pf, $userid = 0, $nullifnone = true) {
     }
     $cm = get_coursemodule_from_instance('peerfeedback', $pf->id, $pf->course, false, MUST_EXIST);
     $rm = new \mod_peerfeedback\local\response_manager($pf, context_module::instance($cm->id));
-    $userids = $userid ? [$userid] : $DB->get_fieldset_select('peerfeedback_response', 'DISTINCT giverid',
-        'peerfeedbackid = ?', [$pf->id]);
+    $userids = $userid ? [$userid] : $DB->get_fieldset_select(
+        'peerfeedback_response',
+        'DISTINCT giverid',
+        'peerfeedbackid = ?',
+        [$pf->id]
+    );
     $grades = [];
     foreach ($userids as $uid) {
         $grades[$uid] = (object)['userid' => $uid, 'rawgrade' => $rm->average_grade((int)$uid)];
@@ -195,8 +199,11 @@ function peerfeedback_update_grades($pf, $userid = 0, $nullifnone = true) {
  */
 function peerfeedback_get_coursemodule_info($coursemodule) {
     global $DB;
-    $pf = $DB->get_record('peerfeedback', ['id' => $coursemodule->instance],
-        'id, name, intro, introformat, completionsubmit');
+    $pf = $DB->get_record(
+        'peerfeedback',
+        ['id' => $coursemodule->instance],
+        'id, name, intro, introformat, completionsubmit'
+    );
     if (!$pf) {
         return false;
     }

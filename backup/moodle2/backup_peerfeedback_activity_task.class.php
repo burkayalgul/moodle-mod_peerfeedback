@@ -26,7 +26,6 @@ require_once($CFG->dirroot . '/mod/peerfeedback/backup/moodle2/backup_peerfeedba
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_peerfeedback_activity_task extends backup_activity_task {
-
     /**
      * No particular settings.
      */
@@ -49,9 +48,15 @@ class backup_peerfeedback_activity_task extends backup_activity_task {
     public static function encode_content_links($content) {
         global $CFG;
         $base = preg_quote($CFG->wwwroot, '/');
-        $content = preg_replace('/(' . $base . '\/mod\/peerfeedback\/index.php\?id\=)([0-9]+)/', '$@PEERFEEDBACKINDEX*$2@$',
-            $content);
-        return preg_replace('/(' . $base . '\/mod\/peerfeedback\/view.php\?id\=)([0-9]+)/', '$@PEERFEEDBACKVIEWBYID*$2@$',
-            $content);
+        $content = preg_replace(
+            '/(' . $base . '\/mod\/peerfeedback\/index.php\?id\=)([0-9]+)/',
+            '$@PEERFEEDBACKINDEX*$2@$',
+            $content
+        );
+        return preg_replace(
+            '/(' . $base . '\/mod\/peerfeedback\/view.php\?id\=)([0-9]+)/',
+            '$@PEERFEEDBACKVIEWBYID*$2@$',
+            $content
+        );
     }
 }

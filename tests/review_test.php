@@ -30,7 +30,6 @@ use mod_peerfeedback\local\response_manager;
 #[\PHPUnit\Framework\Attributes\CoversClass(response_manager::class)]
 #[\PHPUnit\Framework\Attributes\CoversFunction('peerfeedback_update_grades')]
 final class review_test extends \advanced_testcase {
-
     /** @var \stdClass */
     private $pf;
     /** @var \stdClass */

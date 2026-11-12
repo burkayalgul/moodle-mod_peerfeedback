@@ -24,7 +24,6 @@ namespace mod_peerfeedback\local\qtype;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rating extends base {
-
     #[\Override]
     protected function check_value(array $config, string $value, bool $required): ?string {
         $max = (int)($config['max'] ?? 5);

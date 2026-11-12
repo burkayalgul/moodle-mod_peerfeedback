@@ -27,7 +27,6 @@ use mod_peerfeedback\local\question_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(question_manager::class)]
 final class question_manager_test extends \advanced_testcase {
-
     /**
      * Create an activity and its manager.
      *

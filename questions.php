@@ -57,8 +57,11 @@ if ($action === 'delete' && confirm_sesskey()) {
         redirect($baseurl);
     }
     echo $OUTPUT->header();
-    echo $OUTPUT->confirm(get_string('confirmdeletequestion', 'peerfeedback'),
-        new moodle_url($baseurl, ['action' => 'delete', 'qid' => $qid, 'confirm' => 1, 'sesskey' => sesskey()]), $baseurl);
+    echo $OUTPUT->confirm(
+        get_string('confirmdeletequestion', 'peerfeedback'),
+        new moodle_url($baseurl, ['action' => 'delete', 'qid' => $qid, 'confirm' => 1, 'sesskey' => sesskey()]),
+        $baseurl
+    );
     echo $OUTPUT->footer();
     exit;
 }
@@ -97,7 +100,9 @@ if (in_array($action, ['add', 'edit', 'save'], true)) {
 
 echo $OUTPUT->header();
 echo $renderer->tabs($cm, 'questions');
-echo $renderer->render_from_template('mod_peerfeedback/questions',
-    $renderer->questions_context($cm, $qm->get_questions(), $qm->has_submissions()));
+echo $renderer->render_from_template(
+    'mod_peerfeedback/questions',
+    $renderer->questions_context($cm, $qm->get_questions(), $qm->has_submissions())
+);
 echo $renderer->branding_footer();
 echo $OUTPUT->footer();

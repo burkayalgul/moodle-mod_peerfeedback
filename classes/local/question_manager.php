@@ -26,7 +26,6 @@ use mod_peerfeedback\local\qtype\base;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_manager {
-
     /**
      * Constructor.
      *
@@ -59,8 +58,11 @@ class question_manager {
      */
     public function has_submissions(): bool {
         global $DB;
-        return $DB->record_exists_select('peerfeedback_response', 'peerfeedbackid = ? AND status >= ?',
-            [$this->pf->id, constants::STATUS_SUBMITTED]);
+        return $DB->record_exists_select(
+            'peerfeedback_response',
+            'peerfeedbackid = ? AND status >= ?',
+            [$this->pf->id, constants::STATUS_SUBMITTED]
+        );
     }
 
     /**

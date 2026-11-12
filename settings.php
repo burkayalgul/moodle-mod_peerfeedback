@@ -25,6 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configcheckbox('mod_peerfeedback/showbranding',
-        get_string('showbranding', 'peerfeedback'), get_string('showbranding_desc', 'peerfeedback'), 1));
+    $settings->add(new admin_setting_configcheckbox(
+        'mod_peerfeedback/showbranding',
+        get_string('showbranding', 'peerfeedback'),
+        get_string('showbranding_desc', 'peerfeedback'),
+        1
+    ));
 }

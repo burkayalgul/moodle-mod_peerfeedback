@@ -26,7 +26,6 @@ namespace mod_peerfeedback;
 #[\PHPUnit\Framework\Attributes\CoversFunction('peerfeedback_add_instance')]
 #[\PHPUnit\Framework\Attributes\CoversFunction('peerfeedback_delete_instance')]
 final class lib_test extends \advanced_testcase {
-
     public function test_add_instance_stores_defaults(): void {
         global $DB;
         $this->resetAfterTest();

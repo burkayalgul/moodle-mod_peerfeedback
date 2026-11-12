@@ -65,8 +65,13 @@ if ($action !== '' && confirm_sesskey()) {
             if ($grade === false) {
                 throw new moodle_exception('err_gradeoutofrange', 'peerfeedback', '', $pf->grade);
             }
-            $rm->review($responseid, $grade, optional_param('comment', '', PARAM_TEXT),
-                $action === 'markreviewed', $USER->id);
+            $rm->review(
+                $responseid,
+                $grade,
+                optional_param('comment', '', PARAM_TEXT),
+                $action === 'markreviewed',
+                $USER->id
+            );
             \core\notification::success($action === 'markreviewed'
                 ? get_string('markedreviewed', 'peerfeedback') : get_string('changessaved'));
         } catch (moodle_exception $e) {
@@ -79,7 +84,9 @@ if ($action !== '' && confirm_sesskey()) {
 $renderer = $PAGE->get_renderer('mod_peerfeedback');
 echo $OUTPUT->header();
 echo $renderer->tabs($cm, 'review');
-echo $renderer->render_from_template('mod_peerfeedback/review',
-    $renderer->review_context($cm, $pf, $rm, $users, $userid, $dir, $filter));
+echo $renderer->render_from_template(
+    'mod_peerfeedback/review',
+    $renderer->review_context($cm, $pf, $rm, $users, $userid, $dir, $filter)
+);
 echo $renderer->branding_footer();
 echo $OUTPUT->footer();

@@ -23,7 +23,6 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerfeedback_generator extends testing_module_generator {
-
     #[\Override]
     public function create_instance($record = null, ?array $options = null) {
         $record = (object)(array)$record;
@@ -47,8 +46,13 @@ class mod_peerfeedback_generator extends testing_module_generator {
      * @param string $text
      * @return stdClass the question record
      */
-    public function create_question(int $pfid, string $qtype, array $config = [], bool $required = true,
-            string $text = 'Q'): stdClass {
+    public function create_question(
+        int $pfid,
+        string $qtype,
+        array $config = [],
+        bool $required = true,
+        string $text = 'Q'
+    ): stdClass {
         global $DB;
         $sort = (int)$DB->get_field_sql('SELECT COALESCE(MAX(sortorder), 0) FROM {peerfeedback_question}
             WHERE peerfeedbackid = ?', [$pfid]) + 1;
@@ -87,8 +91,13 @@ class mod_peerfeedback_generator extends testing_module_generator {
      */
     public function create_behat_question(array $record): stdClass {
         $config = json_decode($record['config'] ?? '{}', true) ?: [];
-        return $this->create_question((int)$record['peerfeedbackid'], $record['qtype'], $config,
-            (bool)($record['required'] ?? 1), $record['questiontext']);
+        return $this->create_question(
+            (int)$record['peerfeedbackid'],
+            $record['qtype'],
+            $config,
+            (bool)($record['required'] ?? 1),
+            $record['questiontext']
+        );
     }
 
     /**
@@ -117,13 +126,13 @@ class mod_peerfeedback_generator extends testing_module_generator {
         $pf = $DB->get_record('peerfeedback', ['id' => $record['peerfeedbackid']], '*', MUST_EXIST);
         $cm = get_coursemodule_from_instance('peerfeedback', $pf->id, 0, false, MUST_EXIST);
         $rm = new \mod_peerfeedback\local\response_manager($pf, context_module::instance($cm->id));
-        $byText = [];
+        $bytext = [];
         foreach ($DB->get_records('peerfeedback_question', ['peerfeedbackid' => $pf->id]) as $q) {
-            $byText[$q->questiontext] = $q->id;
+            $bytext[$q->questiontext] = $q->id;
         }
         $raw = [];
         foreach (json_decode($record['answers'], true) as $text => $value) {
-            $raw[$byText[$text]] = $value;
+            $raw[$bytext[$text]] = $value;
         }
         $giver = $DB->get_field('user', 'id', ['username' => $record['giver']], MUST_EXIST);
         $receiver = $DB->get_field('user', 'id', ['username' => $record['receiver']], MUST_EXIST);

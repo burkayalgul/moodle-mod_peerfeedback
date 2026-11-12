@@ -46,8 +46,11 @@ $renderer = $PAGE->get_renderer('mod_peerfeedback');
 
 if ($action === 'pair' && !optional_param('confirm', 0, PARAM_BOOL)) {
     echo $OUTPUT->header();
-    echo $OUTPUT->confirm(get_string('confirmpair', 'peerfeedback'),
-        new moodle_url($baseurl, ['action' => 'pair', 'confirm' => 1, 'sesskey' => sesskey()]), $baseurl);
+    echo $OUTPUT->confirm(
+        get_string('confirmpair', 'peerfeedback'),
+        new moodle_url($baseurl, ['action' => 'pair', 'confirm' => 1, 'sesskey' => sesskey()]),
+        $baseurl
+    );
     echo $OUTPUT->footer();
     exit;
 }
@@ -82,8 +85,11 @@ if ($action !== '') {
             break;
         case 'random':
             try {
-                $gm->random_assign(required_param('mode', PARAM_ALPHA), required_param('value', PARAM_INT),
-                    optional_param('reshuffle', 0, PARAM_BOOL));
+                $gm->random_assign(
+                    required_param('mode', PARAM_ALPHA),
+                    required_param('value', PARAM_INT),
+                    optional_param('reshuffle', 0, PARAM_BOOL)
+                );
             } catch (moodle_exception $e) {
                 \core\notification::error($e->getMessage());
             }

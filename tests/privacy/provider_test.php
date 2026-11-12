@@ -31,7 +31,6 @@ use mod_peerfeedback\local\response_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(provider::class)]
 final class provider_test extends \core_privacy\tests\provider_testcase {
-
     /** @var \stdClass[] */
     private $u = [];
     /** @var \context_module */
@@ -73,8 +72,10 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->make();
         $list = new userlist($this->context, 'mod_peerfeedback');
         provider::get_users_in_context($list);
-        $this->assertEqualsCanonicalizing([$this->u['a']->id, $this->u['b']->id, $this->u['c']->id, $this->u['t']->id],
-            $list->get_userids());
+        $this->assertEqualsCanonicalizing(
+            [$this->u['a']->id, $this->u['b']->id, $this->u['c']->id, $this->u['t']->id],
+            $list->get_userids()
+        );
     }
 
     public function test_export_user_data(): void {

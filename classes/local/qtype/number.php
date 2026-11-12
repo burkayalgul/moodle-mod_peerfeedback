@@ -24,7 +24,6 @@ namespace mod_peerfeedback\local\qtype;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class number extends base {
-
     #[\Override]
     public function normalise(array $config, mixed $raw): ?string {
         $value = parent::normalise($config, $raw);

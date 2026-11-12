@@ -24,7 +24,6 @@ namespace mod_peerfeedback\local\qtype;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class base {
-
     /** @var string[] Supported types in display order. */
     public const TYPES = ['singlechoice', 'multichoice', 'rating', 'number', 'shorttext', 'longtext', 'grid', 'heading'];
 

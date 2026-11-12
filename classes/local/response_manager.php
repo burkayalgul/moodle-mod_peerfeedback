@@ -31,7 +31,6 @@ use mod_peerfeedback\local\qtype\base;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class response_manager {
-
     /** @var group_manager */
     protected group_manager $groups;
 
@@ -83,8 +82,10 @@ class response_manager {
      */
     public function get_response(int $giverid, int $receiverid): ?\stdClass {
         global $DB;
-        $r = $DB->get_record('peerfeedback_response',
-            ['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid, 'receiverid' => $receiverid]);
+        $r = $DB->get_record(
+            'peerfeedback_response',
+            ['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid, 'receiverid' => $receiverid]
+        );
         if (!$r) {
             return null;
         }
@@ -116,8 +117,11 @@ class response_manager {
         if (!$this->is_open() || !isset($this->get_peers($giverid)[$receiverid])) {
             return false;
         }
-        $status = $DB->get_field('peerfeedback_response', 'status',
-            ['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid, 'receiverid' => $receiverid]);
+        $status = $DB->get_field(
+            'peerfeedback_response',
+            'status',
+            ['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid, 'receiverid' => $receiverid]
+        );
         return $status === false || (int)$status !== constants::STATUS_REVIEWED;
     }
 
@@ -155,8 +159,10 @@ class response_manager {
         $now = time();
         $group = $this->groups->get_group_of($giverid);
         $transaction = $DB->start_delegated_transaction();
-        $existing = $DB->get_record('peerfeedback_response',
-            ['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid, 'receiverid' => $receiverid]);
+        $existing = $DB->get_record(
+            'peerfeedback_response',
+            ['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid, 'receiverid' => $receiverid]
+        );
         $record = $existing ?: (object)['peerfeedbackid' => $this->pf->id, 'giverid' => $giverid,
             'receiverid' => $receiverid, 'status' => constants::STATUS_SAVED, 'timecreated' => $now, 'editedaftergrade' => 0];
         $record->groupid = $group ? $group->id : 0;
@@ -204,8 +210,11 @@ class response_manager {
         if ($peers) {
             [$in, $params] = $DB->get_in_or_equal(array_keys($peers), SQL_PARAMS_NAMED);
             $params += ['pfid' => $this->pf->id, 'giver' => $userid, 'status' => constants::STATUS_SUBMITTED];
-            $done = $DB->count_records_select('peerfeedback_response',
-                "peerfeedbackid = :pfid AND giverid = :giver AND status >= :status AND receiverid $in", $params);
+            $done = $DB->count_records_select(
+                'peerfeedback_response',
+                "peerfeedbackid = :pfid AND giverid = :giver AND status >= :status AND receiverid $in",
+                $params
+            );
         }
         return ['done' => $done, 'total' => count($peers)];
     }
@@ -265,9 +274,11 @@ class response_manager {
      */
     public function average_grade(int $giverid): ?float {
         global $DB;
-        $avg = $DB->get_field_sql('SELECT AVG(grade) FROM {peerfeedback_response}
+        $avg = $DB->get_field_sql(
+            'SELECT AVG(grade) FROM {peerfeedback_response}
             WHERE peerfeedbackid = ? AND giverid = ? AND status >= ? AND grade IS NOT NULL',
-            [$this->pf->id, $giverid, constants::STATUS_SUBMITTED]);
+            [$this->pf->id, $giverid, constants::STATUS_SUBMITTED]
+        );
         return $avg === null || $avg === false ? null : round((float)$avg, 5);
     }
 
@@ -289,8 +300,12 @@ class response_manager {
         } else if ($filter === 'reviewed') {
             $where .= ' AND status = ' . constants::STATUS_REVIEWED;
         }
-        $responses = $DB->get_records_select('peerfeedback_response', $where, ['pfid' => $this->pf->id, 'uid' => $userid],
-            'status ASC, timesubmitted ASC, id ASC');
+        $responses = $DB->get_records_select(
+            'peerfeedback_response',
+            $where,
+            ['pfid' => $this->pf->id, 'uid' => $userid],
+            'status ASC, timesubmitted ASC, id ASC'
+        );
         if (!$responses) {
             return [];
         }
@@ -300,8 +315,10 @@ class response_manager {
         foreach ($DB->get_records_select('peerfeedback_answer', "responseid $in", $params) as $a) {
             $answers[$a->responseid][$a->questionid] = $a->value;
         }
-        $users = user_get_users_by_id(array_unique(array_merge(array_column($responses, 'giverid'),
-            array_column($responses, 'receiverid'))));
+        $users = user_get_users_by_id(array_unique(array_merge(
+            array_column($responses, 'giverid'),
+            array_column($responses, 'receiverid')
+        )));
         $currentgroup = $DB->get_records_menu('peerfeedback_member', ['peerfeedbackid' => $this->pf->id], '', 'userid, groupid');
         foreach ($responses as $r) {
             $r->givername = fullname($users[$r->giverid]);

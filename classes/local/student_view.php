@@ -31,7 +31,6 @@ use mod_peerfeedback\local\qtype\base;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class student_view {
-
     /**
      * Constructor.
      *
@@ -62,7 +61,11 @@ class student_view {
                 $where = "$base AND receiverid = :uid";
                 break;
             case constants::VIS_ALL:
-                $groupid = $DB->get_field('peerfeedback_member', 'groupid', ['peerfeedbackid' => $this->pf->id, 'userid' => $userid]);
+                $groupid = $DB->get_field(
+                    'peerfeedback_member',
+                    'groupid',
+                    ['peerfeedbackid' => $this->pf->id, 'userid' => $userid]
+                );
                 if (!$groupid) {
                     return [];
                 }

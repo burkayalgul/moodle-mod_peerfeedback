@@ -28,7 +28,6 @@ use mod_peerfeedback\local\response_manager;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(response_manager::class)]
 final class response_manager_test extends \advanced_testcase {
-
     /** @var \stdClass */
     private $pf;
     /** @var \stdClass[] */
@@ -61,11 +60,16 @@ final class response_manager_test extends \advanced_testcase {
     public function test_peers_exclude_self_unless_selfeval(): void {
         $rm = $this->make();
         $a = (int)$this->users['a']->id;
-        $this->assertSame([(int)$this->users['b']->id, (int)$this->users['c']->id], array_map('intval', array_keys($rm->get_peers($a))));
+        $this->assertSame(
+            [(int)$this->users['b']->id, (int)$this->users['c']->id],
+            array_map('intval', array_keys($rm->get_peers($a)))
+        );
         $rm2 = $this->make(['selfeval' => 1]);
         $a = (int)$this->users['a']->id;
-        $this->assertSame([(int)$this->users['b']->id, (int)$this->users['c']->id, $a],
-            array_map('intval', array_keys($rm2->get_peers($a))));
+        $this->assertSame(
+            [(int)$this->users['b']->id, (int)$this->users['c']->id, $a],
+            array_map('intval', array_keys($rm2->get_peers($a)))
+        );
     }
 
     public function test_peers_empty_without_group(): void {
@@ -123,15 +127,15 @@ final class response_manager_test extends \advanced_testcase {
         $rm->save($a, $b, [$this->q->id => '4'], true);
         $DB->set_field('peerfeedback_response', 'status', constants::STATUS_REVIEWED, ['giverid' => $a]);
         $this->assertFalse($rm->can_edit($a, $b));
-        $this->assertThrows(fn() => $rm->save($a, $b, [$this->q->id => '1'], true));
+        $this->assert_throws(fn() => $rm->save($a, $b, [$this->q->id => '1'], true));
 
         $this->pf->timedue = time() - 60;
         $this->assertFalse($rm->can_edit($a, $c));
-        $this->assertThrows(fn() => $rm->save($a, $c, [$this->q->id => '1'], true));
+        $this->assert_throws(fn() => $rm->save($a, $c, [$this->q->id => '1'], true));
 
         $this->pf->timedue = 0;
         $this->pf->timeopen = time() + 3600;
-        $this->assertThrows(fn() => $rm->save($a, $c, [$this->q->id => '1'], true));
+        $this->assert_throws(fn() => $rm->save($a, $c, [$this->q->id => '1'], true));
         $this->assertEquals(1, $DB->count_records('peerfeedback_response'));
     }
 
@@ -150,9 +154,14 @@ final class response_manager_test extends \advanced_testcase {
     public function test_heading_questions_are_ignored_on_save(): void {
         global $DB;
         $rm = $this->make();
-        $h = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback')->create_question($this->pf->id, 'heading', [], false);
-        $this->assertSame([], $rm->save($this->users['a']->id, $this->users['b']->id,
-            [$this->q->id => '4', $h->id => 'junk'], true));
+        $h = $this->getDataGenerator()->get_plugin_generator('mod_peerfeedback')
+            ->create_question($this->pf->id, 'heading', [], false);
+        $this->assertSame([], $rm->save(
+            $this->users['a']->id,
+            $this->users['b']->id,
+            [$this->q->id => '4', $h->id => 'junk'],
+            true
+        ));
         $this->assertFalse($DB->record_exists('peerfeedback_answer', ['questionid' => $h->id]));
     }
 
@@ -169,7 +178,7 @@ final class response_manager_test extends \advanced_testcase {
      *
      * @param callable $fn
      */
-    private function assertThrows(callable $fn): void {
+    private function assert_throws(callable $fn): void {
         try {
             $fn();
             $this->fail('Expected moodle_exception');

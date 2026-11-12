@@ -51,7 +51,11 @@ $PAGE->activityheader->disable();
 echo $OUTPUT->header();
 echo $PAGE->get_renderer('mod_peerfeedback')->tabs($cm, 'review');
 echo $OUTPUT->heading(get_string($by === 'receiver' ? 'exportbyreceiverheading' : 'exportbygiverheading', 'peerfeedback'));
-echo $OUTPUT->download_dataformat_selector(get_string('downloadas', 'table'), 'export.php', 'format',
-    ['id' => $cm->id, 'by' => $by]);
+echo $OUTPUT->download_dataformat_selector(
+    get_string('downloadas', 'table'),
+    'export.php',
+    'format',
+    ['id' => $cm->id, 'by' => $by]
+);
 echo $PAGE->get_renderer('mod_peerfeedback')->branding_footer();
 echo $OUTPUT->footer();

@@ -24,7 +24,6 @@ namespace mod_peerfeedback\event;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class response_reviewed extends \core\event\base {
-
     #[\Override]
     protected function init() {
         $this->data['crud'] = 'u';
@@ -45,7 +44,10 @@ class response_reviewed extends \core\event\base {
 
     #[\Override]
     public function get_url() {
-        return new \moodle_url('/mod/peerfeedback/review.php', ['id' => $this->contextinstanceid, 'userid' => $this->relateduserid]);
+        return new \moodle_url(
+            '/mod/peerfeedback/review.php',
+            ['id' => $this->contextinstanceid, 'userid' => $this->relateduserid]
+        );
     }
 
     #[\Override]

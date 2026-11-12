@@ -27,7 +27,6 @@ use mod_peerfeedback\local\response_manager;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_completion extends activity_custom_completion {
-
     /**
      * Complete when the user has at least one person to evaluate and has submitted feedback for all of them.
      *

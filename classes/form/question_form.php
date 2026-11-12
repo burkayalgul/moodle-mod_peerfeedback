@@ -30,7 +30,6 @@ use mod_peerfeedback\local\qtype\base;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_form extends \moodleform {
-
     #[\Override]
     protected function definition() {
         $mform = $this->_form;
@@ -80,7 +79,12 @@ class question_form extends \moodleform {
                 $mform->setType('max', PARAM_RAW_TRIMMED);
                 break;
             case 'grid':
-                $mform->addElement('textarea', 'criteria', get_string('criterialines', 'peerfeedback'), ['rows' => 5, 'cols' => 40]);
+                $mform->addElement(
+                    'textarea',
+                    'criteria',
+                    get_string('criterialines', 'peerfeedback'),
+                    ['rows' => 5, 'cols' => 40]
+                );
                 $mform->setType('criteria', PARAM_TEXT);
                 $mform->addRule('criteria', null, 'required', null, 'client');
                 $mform->addElement('select', 'max', get_string('scalemax', 'peerfeedback'), $scale);

@@ -27,7 +27,6 @@ use mod_peerfeedback\local\qtype\base;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(base::class)]
 final class qtype_test extends \basic_testcase {
-
     /** @var array sample configs per answerable type */
     private const CONFIGS = [
         'singlechoice' => ['options' => ['A', 'B']],

@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
  * Settings form for a peer feedback activity.
  */
 class mod_peerfeedback_mod_form extends moodleform_mod {
-
     #[\Override]
     public function definition() {
         $mform = $this->_form;

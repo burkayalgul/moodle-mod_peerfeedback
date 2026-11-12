@@ -24,7 +24,6 @@ namespace mod_peerfeedback\local;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class group_manager {
-
     /**
      * Constructor.
      *
@@ -46,8 +45,16 @@ class group_manager {
      */
     public function eligible_users(): array {
         $fields = 'u.id, ' . implode(', ', array_map(fn($f) => 'u.' . $f, \core_user\fields::get_name_fields()));
-        return get_enrolled_users($this->context, 'mod/peerfeedback:submit', 0, $fields,
-            'u.lastname ASC, u.firstname ASC, u.id ASC', 0, 0, true);
+        return get_enrolled_users(
+            $this->context,
+            'mod/peerfeedback:submit',
+            0,
+            $fields,
+            'u.lastname ASC, u.firstname ASC, u.id ASC',
+            0,
+            0,
+            true
+        );
     }
 
     /**
@@ -99,8 +106,10 @@ class group_manager {
             $name = get_string('defaultgroupname', 'peerfeedback', $n);
         }
         $sort = $groups ? max(array_map(fn($g) => (int)$g->sortorder, $groups)) + 1 : 1;
-        return $DB->insert_record('peerfeedback_group',
-            ['peerfeedbackid' => $this->pf->id, 'name' => trim($name), 'sortorder' => $sort]);
+        return $DB->insert_record(
+            'peerfeedback_group',
+            ['peerfeedbackid' => $this->pf->id, 'name' => trim($name), 'sortorder' => $sort]
+        );
     }
 
     /**
@@ -279,8 +288,10 @@ class group_manager {
         if ($existing) {
             $DB->set_field('peerfeedback_member', 'groupid', $groupid, ['id' => $existing->id]);
         } else {
-            $DB->insert_record('peerfeedback_member',
-                ['peerfeedbackid' => $this->pf->id, 'groupid' => $groupid, 'userid' => $userid]);
+            $DB->insert_record(
+                'peerfeedback_member',
+                ['peerfeedbackid' => $this->pf->id, 'groupid' => $groupid, 'userid' => $userid]
+            );
         }
     }
 

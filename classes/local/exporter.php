@@ -30,7 +30,6 @@ use mod_peerfeedback\local\qtype\base;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class exporter {
-
     /** @var \stdClass[] questions with config */
     protected array $questions;
 
@@ -52,7 +51,8 @@ class exporter {
      * @return string[]
      */
     public function headers(): array {
-        $headers = [get_string('giver', 'peerfeedback'), get_string('receiver', 'peerfeedback'), get_string('group', 'peerfeedback')];
+        $headers = [get_string('giver', 'peerfeedback'), get_string('receiver', 'peerfeedback'),
+            get_string('group', 'peerfeedback')];
         $n = 0;
         foreach ($this->questions as $q) {
             $type = base::get($q->qtype);
@@ -77,13 +77,18 @@ class exporter {
      */
     public function rows(string $by): \Generator {
         global $DB;
-        $responses = $DB->get_records_select('peerfeedback_response', 'peerfeedbackid = ? AND status >= ?',
-            [$this->pf->id, constants::STATUS_SUBMITTED]);
+        $responses = $DB->get_records_select(
+            'peerfeedback_response',
+            'peerfeedbackid = ? AND status >= ?',
+            [$this->pf->id, constants::STATUS_SUBMITTED]
+        );
         if (!$responses) {
             return;
         }
-        $users = user_get_users_by_id(array_unique(array_merge(array_column($responses, 'giverid'),
-            array_column($responses, 'receiverid'))));
+        $users = user_get_users_by_id(array_unique(array_merge(
+            array_column($responses, 'giverid'),
+            array_column($responses, 'receiverid')
+        )));
         $groups = $DB->get_records_menu('peerfeedback_group', ['peerfeedbackid' => $this->pf->id], '', 'id, name');
         $name = fn($uid) => isset($users[$uid]) ? fullname($users[$uid]) : '';
         [$first, $second] = $by === 'receiver' ? ['receiverid', 'giverid'] : ['giverid', 'receiverid'];
@@ -92,14 +97,18 @@ class exporter {
 
         foreach ($responses as $r) {
             $answers = $DB->get_records_menu('peerfeedback_answer', ['responseid' => $r->id], '', 'questionid, value');
-            $row = [$name($r->giverid), $name($r->receiverid), isset($groups[$r->groupid]) ? format_string($groups[$r->groupid]) : ''];
+            $row = [$name($r->giverid), $name($r->receiverid),
+                isset($groups[$r->groupid]) ? format_string($groups[$r->groupid]) : ''];
             foreach ($this->questions as $q) {
                 $type = base::get($q->qtype);
                 if ($type->is_answerable()) {
                     $row = array_merge($row, $type->export_values($q->config, $answers[$q->id] ?? null));
                 }
             }
-            $row[] = get_string((int)$r->status === constants::STATUS_REVIEWED ? 'statusreviewed' : 'statussubmitted', 'peerfeedback');
+            $row[] = get_string(
+                (int)$r->status === constants::STATUS_REVIEWED ? 'statusreviewed' : 'statussubmitted',
+                'peerfeedback'
+            );
             $row[] = $r->timesubmitted ? userdate($r->timesubmitted, get_string('strftimedatetimeshort', 'langconfig')) : '';
             $row[] = $r->grade === null ? '' : format_float($r->grade, 2, false, true);
             $row[] = (string)($r->teachercomment ?? '');

@@ -24,7 +24,6 @@ namespace mod_peerfeedback\local\qtype;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class multichoice extends singlechoice {
-
     #[\Override]
     public function normalise(array $config, mixed $raw): ?string {
         if (!is_array($raw)) {
