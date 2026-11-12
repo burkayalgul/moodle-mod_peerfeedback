@@ -45,10 +45,16 @@ $gm = new group_manager($pf, $context);
 $renderer = $PAGE->get_renderer('mod_peerfeedback');
 
 $confirmed = optional_param('confirm', 0, PARAM_BOOL);
+if ($action !== '') {
+    // Every action, including the confirmation step, must come from this page's own forms.
+    require_sesskey();
+}
 if ($action !== '' && !$confirmed) {
-    // Warn before group changes that would throw away students' saved drafts.
+    // Warn before group changes that would throw away students' saved drafts, naming exactly what will change.
     $after = $gm->membership();
     $params = ['action' => $action];
+    $groupnames = array_map(fn($g) => format_string($g->name), $gm->get_groups());
+    $what = '';
     switch ($action) {
         case 'assign':
             $userids = array_intersect(
@@ -60,20 +66,26 @@ if ($action !== '' && !$confirmed) {
                 $after[$uid] = $groupid ?: -1;
             }
             $params += ['groupid' => $groupid, 'useridlist' => implode(',', $userids)];
+            $what = get_string('confirmassign', 'peerfeedback', ['count' => count($userids),
+                'group' => $groupnames[$groupid] ?? get_string('newgroup', 'peerfeedback')]);
             break;
         case 'deletegroup':
             $groupid = required_param('groupid', PARAM_INT);
             $after = array_filter($after, fn($g) => $g !== $groupid);
             $params['groupid'] = $groupid;
+            $what = get_string('confirmdeletegroup', 'peerfeedback', $groupnames[$groupid] ?? '');
             break;
         case 'unassign':
             $userid = required_param('userid', PARAM_INT);
             unset($after[$userid]);
             $params['userid'] = $userid;
+            $eligible = $gm->eligible_users();
+            $what = get_string('confirmunassign', 'peerfeedback', isset($eligible[$userid]) ? fullname($eligible[$userid]) : '');
             break;
         case 'random':
             if (optional_param('reshuffle', 0, PARAM_BOOL)) {
                 $after = [];
+                $what = get_string('confirmreshuffle', 'peerfeedback');
             }
             $params += ['mode' => optional_param('mode', 'groups', PARAM_ALPHA), 'value' => optional_param('value', 0, PARAM_INT),
                 'reshuffle' => optional_param('reshuffle', 0, PARAM_BOOL)];
@@ -84,7 +96,7 @@ if ($action !== '' && !$confirmed) {
     }
     $lost = in_array($action, ['assign', 'deletegroup', 'unassign', 'random', 'pair'], true) ? $gm->drafts_lost($after) : 0;
     if ($lost > 0 || $action === 'pair') {
-        $message = $action === 'pair' ? get_string('confirmpair', 'peerfeedback') : '';
+        $message = $action === 'pair' ? get_string('confirmpair', 'peerfeedback') : $what;
         if ($lost > 0) {
             $message = trim($message . ' ' . get_string('confirmdiscard', 'peerfeedback', $lost));
         }
