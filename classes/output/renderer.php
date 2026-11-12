@@ -307,6 +307,34 @@ class renderer extends \plugin_renderer_base {
     }
 
     /**
+     * Context for the feedback a student may see; null when the mode is "nothing".
+     *
+     * @param \stdClass $pf
+     * @param int $userid
+     * @return array|null
+     */
+    public function student_results_context(\stdClass $pf, int $userid): ?array {
+        $mode = (int)$pf->visibility;
+        if ($mode === \mod_peerfeedback\local\constants::VIS_NONE) {
+            return null;
+        }
+        $items = [];
+        foreach ((new \mod_peerfeedback\local\student_view($pf))->for_user($userid) as $i => $item) {
+            $title = $item['receivername'] === null
+                ? get_string('feedbacknumber', 'peerfeedback', $i + 1)
+                : get_string('feedbackabout', 'peerfeedback', $item['receivername']);
+            $items[] = [
+                'title' => $title,
+                'answers' => $item['answers'],
+                'grade' => $item['grade'] === null ? null : format_float($item['grade'], 2, true, true) . ' / ' . $pf->grade,
+                'teachercomment' => $item['teachercomment'],
+            ];
+        }
+        $heading = ['', 'resultsgiven', 'resultsreceived', 'resultsall'][$mode];
+        return ['heading' => get_string($heading, 'peerfeedback'), 'items' => $items, 'hasitems' => !empty($items)];
+    }
+
+    /**
      * Small EduZ logo + signature shown at the bottom of every plugin page.
      *
      * @return string

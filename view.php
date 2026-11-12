@@ -101,5 +101,8 @@ if ($peers) {
 echo $OUTPUT->header();
 echo $renderer->render_from_template('mod_peerfeedback/answer',
     $renderer->answer_context($cm, $pf, $rm, $peers, $peerid, $questions, $posted, $errors));
+if ($results = $renderer->student_results_context($pf, $USER->id)) {
+    echo $renderer->render_from_template('mod_peerfeedback/student_results', $results);
+}
 echo $renderer->branding_footer();
 echo $OUTPUT->footer();
