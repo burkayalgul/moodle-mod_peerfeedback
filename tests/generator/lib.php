@@ -78,4 +78,31 @@ class mod_peerfeedback_generator extends testing_module_generator {
         }
         return $rec;
     }
+
+    /**
+     * Behat: create a question from a table row (config as JSON).
+     *
+     * @param array $record peerfeedbackid, qtype, questiontext, config, required
+     * @return stdClass
+     */
+    public function create_behat_question(array $record): stdClass {
+        $config = json_decode($record['config'] ?? '{}', true) ?: [];
+        return $this->create_question((int)$record['peerfeedbackid'], $record['qtype'], $config,
+            (bool)($record['required'] ?? 1), $record['questiontext']);
+    }
+
+    /**
+     * Behat: create a group from a table row (members as comma separated usernames).
+     *
+     * @param array $record peerfeedbackid, name, members
+     * @return stdClass
+     */
+    public function create_behat_group(array $record): stdClass {
+        global $DB;
+        $ids = [];
+        foreach (array_filter(array_map('trim', explode(',', $record['members']))) as $username) {
+            $ids[] = (int)$DB->get_field('user', 'id', ['username' => $username], MUST_EXIST);
+        }
+        return $this->create_group((int)$record['peerfeedbackid'], $ids, $record['name'] ?? null);
+    }
 }

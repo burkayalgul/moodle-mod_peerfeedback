@@ -1,0 +1,35 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+{{!
+    @template mod_peerfeedback/overview
+
+    Teacher landing page.
+
+    Example context (json):
+    {"students": 7, "unassigned": 0, "groups": 3, "questions": 8, "submitted": 4, "reviewed": 1,
+     "questionsurl": "#", "groupsurl": "#", "reviewurl": "#"}
+}}
+<div class="pf-overview row g-3">
+    <div class="col-sm-6 col-lg-3"><a class="pf-stat card card-body" href="{{questionsurl}}">
+        <span class="pf-stat-n">{{questions}}</span><span>{{#str}}overviewquestions, mod_peerfeedback{{/str}}</span></a></div>
+    <div class="col-sm-6 col-lg-3"><a class="pf-stat card card-body" href="{{groupsurl}}">
+        <span class="pf-stat-n">{{groups}}</span><span>{{#str}}overviewgroups, mod_peerfeedback{{/str}}</span>
+        {{#unassigned}}<small class="text-warning-emphasis">{{#str}}overviewunassigned, mod_peerfeedback, {{unassigned}}{{/str}}</small>{{/unassigned}}</a></div>
+    <div class="col-sm-6 col-lg-3"><a class="pf-stat card card-body" href="{{reviewurl}}">
+        <span class="pf-stat-n">{{submitted}}</span><span>{{#str}}overviewsubmitted, mod_peerfeedback{{/str}}</span></a></div>
+    <div class="col-sm-6 col-lg-3"><a class="pf-stat card card-body" href="{{reviewurl}}">
+        <span class="pf-stat-n">{{reviewed}}</span><span>{{#str}}overviewreviewed, mod_peerfeedback{{/str}}</span></a></div>
+</div>
