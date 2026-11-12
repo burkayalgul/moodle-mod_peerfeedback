@@ -80,7 +80,7 @@ if ($action !== '' && !$confirmed) {
             unset($after[$userid]);
             $params['userid'] = $userid;
             $eligible = $gm->eligible_users();
-            $what = get_string('confirmunassign', 'peerfeedback', isset($eligible[$userid]) ? fullname($eligible[$userid]) : '');
+            $what = get_string('confirmunassign', 'peerfeedback', isset($eligible[$userid]) ? s(fullname($eligible[$userid])) : '');
             break;
         case 'random':
             if (optional_param('reshuffle', 0, PARAM_BOOL)) {
