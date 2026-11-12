@@ -124,3 +124,5 @@ $string['rename'] = 'Rename';
 $string['reshuffle'] = 'Re-shuffle everyone';
 $string['student'] = 'Student';
 $string['unassigned'] = 'Unassigned';
+$string['err_notallowed'] = 'You cannot change this feedback now.';
+$string['eventresponsesubmitted'] = 'Peer feedback submitted';
