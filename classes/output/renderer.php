@@ -154,7 +154,10 @@ class renderer extends \plugin_renderer_base {
             'groups' => $boxes,
             'groupoptions' => $options,
             'unassignedcount' => count($gm->unassigned_userids()),
-            'pairurl' => (new \moodle_url('/mod/peerfeedback/groups.php', ['id' => $cm->id, 'action' => 'pair', 'sesskey' => sesskey()]))->out(false),
+            'pairurl' => (new \moodle_url(
+                '/mod/peerfeedback/groups.php',
+                ['id' => $cm->id, 'action' => 'pair', 'sesskey' => sesskey()]
+            ))->out(false),
         ];
     }
 
