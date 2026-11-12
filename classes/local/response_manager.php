@@ -16,6 +16,11 @@
 
 namespace mod_peerfeedback\local;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/peerfeedback/lib.php');
+require_once($CFG->dirroot . '/user/lib.php');
+
 use mod_peerfeedback\local\qtype\base;
 
 /**
@@ -202,5 +207,126 @@ class response_manager {
                 "peerfeedbackid = :pfid AND giverid = :giver AND status >= :status AND receiverid $in", $params);
         }
         return ['done' => $done, 'total' => count($peers)];
+    }
+    /**
+     * Teacher review: grade, comment and optionally mark as reviewed (locks it for the student).
+     *
+     * @param int $responseid
+     * @param float|null $grade null leaves it ungraded
+     * @param string|null $comment
+     * @param bool $markreviewed
+     * @param int $reviewerid
+     */
+    public function review(int $responseid, ?float $grade, ?string $comment, bool $markreviewed, int $reviewerid): void {
+        global $DB;
+        $r = $this->require_response($responseid);
+        if ((int)$r->status < constants::STATUS_SUBMITTED) {
+            throw new \moodle_exception('err_notsubmitted', 'peerfeedback');
+        }
+        if ($grade !== null && ($grade < 0 || $grade > (float)$this->pf->grade)) {
+            throw new \moodle_exception('err_gradeoutofrange', 'peerfeedback', '', $this->pf->grade);
+        }
+        $r->grade = $this->pf->grading ? $grade : null;
+        $r->teachercomment = ($comment === null || trim($comment) === '') ? null : trim($comment);
+        $r->reviewerid = $reviewerid;
+        $r->editedaftergrade = 0;
+        if ($markreviewed) {
+            $r->status = constants::STATUS_REVIEWED;
+            $r->timereviewed = time();
+        }
+        $DB->update_record('peerfeedback_response', $r);
+        if ($markreviewed) {
+            \mod_peerfeedback\event\response_reviewed::create([
+                'objectid' => $r->id, 'context' => $this->context, 'relateduserid' => $r->giverid,
+            ])->trigger();
+        }
+        peerfeedback_update_grades($this->pf, (int)$r->giverid);
+    }
+
+    /**
+     * Reopen a reviewed feedback so the student can edit it again. Grade and comment are kept.
+     *
+     * @param int $responseid
+     */
+    public function reopen(int $responseid): void {
+        global $DB;
+        $r = $this->require_response($responseid);
+        if ((int)$r->status === constants::STATUS_REVIEWED) {
+            $DB->update_record('peerfeedback_response', (object)['id' => $r->id, 'status' => constants::STATUS_SUBMITTED]);
+        }
+    }
+
+    /**
+     * Mean of the teacher's grades on a giver's submitted feedback; null when none is graded.
+     *
+     * @param int $giverid
+     * @return float|null
+     */
+    public function average_grade(int $giverid): ?float {
+        global $DB;
+        $avg = $DB->get_field_sql('SELECT AVG(grade) FROM {peerfeedback_response}
+            WHERE peerfeedbackid = ? AND giverid = ? AND status >= ? AND grade IS NOT NULL',
+            [$this->pf->id, $giverid, constants::STATUS_SUBMITTED]);
+        return $avg === null || $avg === false ? null : round((float)$avg, 5);
+    }
+
+    /**
+     * Responses for the teacher review screen.
+     *
+     * @param int $userid selected student
+     * @param string $direction 'given' or 'received'
+     * @param string $filter 'all', 'notreviewed' or 'reviewed'
+     * @return \stdClass[] responses with givername, receivername, answers (list of question/value),
+     *         notsubmitted, outsidegroup
+     */
+    public function list_for(int $userid, string $direction, string $filter): array {
+        global $DB;
+        $field = $direction === 'received' ? 'receiverid' : 'giverid';
+        $where = "peerfeedbackid = :pfid AND $field = :uid";
+        if ($filter === 'notreviewed') {
+            $where .= ' AND status = ' . constants::STATUS_SUBMITTED;
+        } else if ($filter === 'reviewed') {
+            $where .= ' AND status = ' . constants::STATUS_REVIEWED;
+        }
+        $responses = $DB->get_records_select('peerfeedback_response', $where, ['pfid' => $this->pf->id, 'uid' => $userid],
+            'status ASC, timesubmitted ASC, id ASC');
+        if (!$responses) {
+            return [];
+        }
+        $questions = (new question_manager($this->pf))->get_questions();
+        [$in, $params] = $DB->get_in_or_equal(array_keys($responses));
+        $answers = [];
+        foreach ($DB->get_records_select('peerfeedback_answer', "responseid $in", $params) as $a) {
+            $answers[$a->responseid][$a->questionid] = $a->value;
+        }
+        $users = user_get_users_by_id(array_unique(array_merge(array_column($responses, 'giverid'),
+            array_column($responses, 'receiverid'))));
+        $currentgroup = $DB->get_records_menu('peerfeedback_member', ['peerfeedbackid' => $this->pf->id], '', 'userid, groupid');
+        foreach ($responses as $r) {
+            $r->givername = fullname($users[$r->giverid]);
+            $r->receivername = fullname($users[$r->receiverid]);
+            $r->notsubmitted = (int)$r->status === constants::STATUS_SAVED;
+            $r->outsidegroup = (int)($currentgroup[$r->giverid] ?? 0) !== (int)$r->groupid;
+            $r->answers = [];
+            foreach ($questions as $q) {
+                $type = base::get($q->qtype);
+                if ($type->is_answerable()) {
+                    $r->answers[] = ['question' => format_string($q->questiontext),
+                        'value' => $type->display_value($q->config, $answers[$r->id][$q->id] ?? null)];
+                }
+            }
+        }
+        return array_values($responses);
+    }
+
+    /**
+     * Fetch a response of this activity.
+     *
+     * @param int $responseid
+     * @return \stdClass
+     */
+    protected function require_response(int $responseid): \stdClass {
+        global $DB;
+        return $DB->get_record('peerfeedback_response', ['id' => $responseid, 'peerfeedbackid' => $this->pf->id], '*', MUST_EXIST);
     }
 }

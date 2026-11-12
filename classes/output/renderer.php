@@ -335,6 +335,81 @@ class renderer extends \plugin_renderer_base {
     }
 
     /**
+     * Teacher review screen context.
+     *
+     * @param \cm_info $cm
+     * @param \stdClass $pf
+     * @param \mod_peerfeedback\local\response_manager $rm
+     * @param \stdClass[] $users eligible students
+     * @param int $userid selected student
+     * @param string $dir given|received
+     * @param string $filter all|notreviewed|reviewed
+     * @return array
+     */
+    public function review_context(\cm_info $cm, \stdClass $pf, \mod_peerfeedback\local\response_manager $rm,
+            array $users, int $userid, string $dir, string $filter): array {
+        global $DB;
+        $url = fn(array $p) => (new \moodle_url('/mod/peerfeedback/review.php',
+            $p + ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'userid' => $userid]))->out(false);
+        $field = $dir === 'received' ? 'receiverid' : 'giverid';
+        $counts = [];
+        $sql = "SELECT $field AS uid, SUM(CASE WHEN status >= 1 THEN 1 ELSE 0 END) AS submitted,
+                       SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS reviewed
+                  FROM {peerfeedback_response} WHERE peerfeedbackid = ? GROUP BY $field";
+        foreach ($DB->get_records_sql($sql, [$pf->id]) as $row) {
+            $counts[$row->uid] = $row;
+        }
+        $list = [];
+        foreach ($users as $u) {
+            $c = $counts[$u->id] ?? null;
+            $submitted = $c ? (int)$c->submitted : 0;
+            $list[] = [
+                'fullname' => fullname($u),
+                'url' => $url(['userid' => $u->id]),
+                'active' => (int)$u->id === $userid,
+                'pill' => $submitted ? ((int)$c->reviewed . '/' . $submitted) : get_string('notsubmitted', 'peerfeedback'),
+                'complete' => $submitted && (int)$c->reviewed === $submitted,
+            ];
+        }
+        $cards = [];
+        foreach ($userid ? $rm->list_for($userid, $dir, $filter) : [] as $r) {
+            $cards[] = [
+                'id' => $r->id,
+                'givername' => $r->givername,
+                'receivername' => $r->receivername,
+                'answers' => $r->answers,
+                'notsubmitted' => $r->notsubmitted,
+                'reviewed' => (int)$r->status === 2,
+                'outsidegroup' => $r->outsidegroup,
+                'editedaftergrade' => (bool)$r->editedaftergrade,
+                'grade' => $r->grade === null ? '' : format_float($r->grade, 2, true, true),
+                'comment' => $r->teachercomment ?? '',
+            ];
+        }
+        $average = $userid ? $rm->average_grade($userid) : null;
+        $views = [];
+        foreach (['given' => 'viewgiven', 'received' => 'viewreceived'] as $key => $str) {
+            $views[] = ['url' => $url(['dir' => $key]), 'label' => get_string($str, 'peerfeedback'), 'active' => $dir === $key];
+        }
+        $filters = [];
+        foreach (['all' => 'filterall', 'notreviewed' => 'filternotreviewed', 'reviewed' => 'filterreviewed'] as $key => $str) {
+            $filters[] = ['value' => $key, 'label' => get_string($str, 'peerfeedback'), 'selected' => $filter === $key];
+        }
+        $canexport = has_capability('mod/peerfeedback:export', \context_module::instance($cm->id));
+        $export = fn(string $by) => (new \moodle_url('/mod/peerfeedback/export.php', ['id' => $cm->id, 'by' => $by]))->out(false);
+        return [
+            'cmid' => $cm->id, 'sesskey' => sesskey(), 'dir' => $dir, 'userid' => $userid,
+            'actionurl' => (new \moodle_url('/mod/peerfeedback/review.php'))->out(false),
+            'views' => $views, 'filters' => $filters, 'users' => $list, 'hasusers' => !empty($list),
+            'cards' => $cards, 'hascards' => !empty($cards),
+            'grading' => (bool)$pf->grading, 'maxgrade' => (int)$pf->grade,
+            'average' => $average === null ? null : format_float($average, 2, true, true),
+            'selectedname' => $userid && isset($users[$userid]) ? fullname($users[$userid]) : '',
+            'canexport' => $canexport, 'exportgiver' => $export('giver'), 'exportreceiver' => $export('receiver'),
+        ];
+    }
+
+    /**
      * Small EduZ logo + signature shown at the bottom of every plugin page.
      *
      * @return string

@@ -105,4 +105,31 @@ class mod_peerfeedback_generator extends testing_module_generator {
         }
         return $this->create_group((int)$record['peerfeedbackid'], $ids, $record['name'] ?? null);
     }
+
+    /**
+     * Behat: submit a response (answers as JSON {"question text": "raw value"}).
+     *
+     * @param array $record peerfeedbackid, giver, receiver (usernames), answers
+     * @return void
+     */
+    public function create_behat_response(array $record): void {
+        global $DB;
+        $pf = $DB->get_record('peerfeedback', ['id' => $record['peerfeedbackid']], '*', MUST_EXIST);
+        $cm = get_coursemodule_from_instance('peerfeedback', $pf->id, 0, false, MUST_EXIST);
+        $rm = new \mod_peerfeedback\local\response_manager($pf, context_module::instance($cm->id));
+        $byText = [];
+        foreach ($DB->get_records('peerfeedback_question', ['peerfeedbackid' => $pf->id]) as $q) {
+            $byText[$q->questiontext] = $q->id;
+        }
+        $raw = [];
+        foreach (json_decode($record['answers'], true) as $text => $value) {
+            $raw[$byText[$text]] = $value;
+        }
+        $giver = $DB->get_field('user', 'id', ['username' => $record['giver']], MUST_EXIST);
+        $receiver = $DB->get_field('user', 'id', ['username' => $record['receiver']], MUST_EXIST);
+        $errors = $rm->save((int)$giver, (int)$receiver, $raw, true);
+        if ($errors) {
+            throw new coding_exception('Invalid behat response: ' . json_encode($errors));
+        }
+    }
 }

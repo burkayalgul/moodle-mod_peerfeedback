@@ -34,7 +34,7 @@ function peerfeedback_supports($feature) {
         FEATURE_BACKUP_MOODLE2 => true,
         FEATURE_COMPLETION_HAS_RULES => true,
         FEATURE_COMPLETION_TRACKS_VIEWS => true,
-        FEATURE_GRADE_HAS_GRADE => false,
+        FEATURE_GRADE_HAS_GRADE => true,
         FEATURE_GRADE_OUTCOMES => false,
         FEATURE_GROUPS => false,
         FEATURE_SHOW_DESCRIPTION => true,
@@ -71,6 +71,7 @@ function peerfeedback_add_instance($data, $mform = null) {
     $data = peerfeedback_prepare_data($data);
     $data->timecreated = $data->timemodified;
     $data->id = $DB->insert_record('peerfeedback', $data);
+    peerfeedback_grade_item_update($DB->get_record('peerfeedback', ['id' => $data->id]));
     return $data->id;
 }
 
@@ -86,6 +87,9 @@ function peerfeedback_update_instance($data, $mform = null) {
     $data = peerfeedback_prepare_data($data);
     $data->id = $data->instance;
     $DB->update_record('peerfeedback', $data);
+    $pf = $DB->get_record('peerfeedback', ['id' => $data->id]);
+    peerfeedback_grade_item_update($pf);
+    peerfeedback_update_grades($pf);
     return true;
 }
 
@@ -108,6 +112,77 @@ function peerfeedback_delete_instance($id) {
     $DB->delete_records('peerfeedback_member', ['peerfeedbackid' => $id]);
     $DB->delete_records('peerfeedback_group', ['peerfeedbackid' => $id]);
     $DB->delete_records('peerfeedback_question', ['peerfeedbackid' => $id]);
+    peerfeedback_grade_item_delete($DB->get_record('peerfeedback', ['id' => $id]));
     $DB->delete_records('peerfeedback', ['id' => $id]);
     return true;
+}
+
+/**
+ * Whether this activity sends grades to the gradebook.
+ *
+ * @param stdClass $pf
+ * @return bool
+ */
+function peerfeedback_uses_gradebook(stdClass $pf): bool {
+    return !empty($pf->grading) && !empty($pf->gradebook) && (int)$pf->grade > 0;
+}
+
+/**
+ * Create, update or remove the grade item.
+ *
+ * @param stdClass $pf activity record (needs ->cmidnumber optionally)
+ * @param mixed $grades grades to push, 'reset' or null
+ * @return int GRADE_UPDATE_OK etc.
+ */
+function peerfeedback_grade_item_update($pf, $grades = null) {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+    if (!peerfeedback_uses_gradebook($pf)) {
+        return peerfeedback_grade_item_delete($pf);
+    }
+    $params = ['itemname' => $pf->name, 'gradetype' => GRADE_TYPE_VALUE, 'grademax' => (int)$pf->grade, 'grademin' => 0];
+    if (isset($pf->cmidnumber)) {
+        $params['idnumber'] = $pf->cmidnumber;
+    }
+    if ($grades === 'reset') {
+        $params['reset'] = true;
+        $grades = null;
+    }
+    return grade_update('mod/peerfeedback', $pf->course, 'mod', 'peerfeedback', $pf->id, 0, $grades, $params);
+}
+
+/**
+ * Delete the grade item.
+ *
+ * @param stdClass $pf
+ * @return int
+ */
+function peerfeedback_grade_item_delete($pf) {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+    return grade_update('mod/peerfeedback', $pf->course, 'mod', 'peerfeedback', $pf->id, 0, null, ['deleted' => 1]);
+}
+
+/**
+ * Push the average teacher grade of each giver to the gradebook.
+ *
+ * @param stdClass $pf
+ * @param int $userid 0 for everyone who has given feedback
+ * @param bool $nullifnone
+ */
+function peerfeedback_update_grades($pf, $userid = 0, $nullifnone = true) {
+    global $DB;
+    if (!peerfeedback_uses_gradebook($pf)) {
+        peerfeedback_grade_item_update($pf);
+        return;
+    }
+    $cm = get_coursemodule_from_instance('peerfeedback', $pf->id, $pf->course, false, MUST_EXIST);
+    $rm = new \mod_peerfeedback\local\response_manager($pf, context_module::instance($cm->id));
+    $userids = $userid ? [$userid] : $DB->get_fieldset_select('peerfeedback_response', 'DISTINCT giverid',
+        'peerfeedbackid = ?', [$pf->id]);
+    $grades = [];
+    foreach ($userids as $uid) {
+        $grades[$uid] = (object)['userid' => $uid, 'rawgrade' => $rm->average_grade((int)$uid)];
+    }
+    peerfeedback_grade_item_update($pf, $grades ?: null);
 }

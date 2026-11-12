@@ -16,6 +16,10 @@
 
 namespace mod_peerfeedback\local;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/user/lib.php');
+
 use mod_peerfeedback\local\qtype\base;
 
 /**

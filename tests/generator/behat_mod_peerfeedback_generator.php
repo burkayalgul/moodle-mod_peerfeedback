@@ -33,6 +33,12 @@ class behat_mod_peerfeedback_generator extends behat_generator_base {
                 'required' => ['peerfeedback', 'qtype', 'questiontext'],
                 'switchids' => ['peerfeedback' => 'peerfeedbackid'],
             ],
+            'responses' => [
+                'singular' => 'response',
+                'datagenerator' => 'behat_response',
+                'required' => ['peerfeedback', 'giver', 'receiver', 'answers'],
+                'switchids' => ['peerfeedback' => 'peerfeedbackid'],
+            ],
             'groups' => [
                 'singular' => 'group',
                 'datagenerator' => 'behat_group',

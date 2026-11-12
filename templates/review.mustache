@@ -1,0 +1,109 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+{{!
+    @template mod_peerfeedback/review
+
+    Teacher review screen.
+
+    Example context (json):
+    {"cmid": 1, "sesskey": "x", "dir": "given", "userid": 3, "actionurl": "#", "grading": true, "maxgrade": 100,
+     "views": [{"url": "#", "label": "Feedback given by", "active": true}],
+     "filters": [{"value": "all", "label": "All", "selected": true}], "hasusers": true,
+     "users": [{"fullname": "Ayşe Kaya", "url": "#", "active": true, "pill": "1/2", "complete": false}],
+     "hascards": true, "cards": [{"id": 9, "givername": "Ayşe Kaya", "receivername": "Can Yılmaz",
+        "answers": [{"question": "Communication", "value": "3 / 5"}], "reviewed": false, "grade": "", "comment": ""}],
+     "average": "85", "selectedname": "Ayşe Kaya", "canexport": true, "exportgiver": "#", "exportreceiver": "#"}
+}}
+<div class="pf-review-page">
+    <div class="pf-review-top">
+        <div class="btn-group" role="group" aria-label="{{#str}}view, mod_peerfeedback{{/str}}">
+            {{#views}}<a href="{{url}}" class="btn {{#active}}btn-primary{{/active}}{{^active}}btn-outline-primary{{/active}}"
+                {{#active}}aria-current="page"{{/active}}>{{label}}</a>{{/views}}
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <form method="get" action="{{actionurl}}" class="d-flex gap-1 align-items-center">
+                <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="dir" value="{{dir}}">
+                <input type="hidden" name="userid" value="{{userid}}">
+                <label for="pf-filter" class="mb-0">{{#str}}filter, mod_peerfeedback{{/str}}</label>
+                <select id="pf-filter" name="filter" class="form-select w-auto">
+                    {{#filters}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/filters}}
+                </select>
+                <button type="submit" class="btn btn-outline-secondary">{{#str}}go{{/str}}</button>
+            </form>
+            {{#canexport}}
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">{{#str}}export, mod_peerfeedback{{/str}}</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{exportgiver}}">{{#str}}exportbygiver, mod_peerfeedback{{/str}}</a></li>
+                    <li><a class="dropdown-item" href="{{exportreceiver}}">{{#str}}exportbyreceiver, mod_peerfeedback{{/str}}</a></li>
+                </ul>
+            </div>
+            {{/canexport}}
+        </div>
+    </div>
+
+    {{^hasusers}}<div class="alert alert-info">{{#str}}nostudents, mod_peerfeedback{{/str}}</div>{{/hasusers}}
+    {{#hasusers}}
+    <div class="pf-review-grid">
+        <nav class="pf-review-list list-group" aria-label="{{#str}}students, mod_peerfeedback{{/str}}">
+            {{#users}}
+            <a href="{{url}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center{{#active}} active{{/active}}"
+                {{#active}}aria-current="true"{{/active}}>
+                <span>{{fullname}}</span>
+                <span class="badge {{#complete}}pf-pill-ok{{/complete}}{{^complete}}pf-pill-wait{{/complete}}">{{pill}}</span>
+            </a>
+            {{/users}}
+        </nav>
+        <div class="pf-review-cards">
+            {{^hascards}}<p class="text-muted">{{#str}}nothingtoreview, mod_peerfeedback{{/str}}</p>{{/hascards}}
+            {{#cards}}
+            <article class="pf-card card card-body" id="r{{id}}">
+                <div class="pf-card-head">
+                    <span class="pf-who">{{givername}} → {{receivername}}</span>
+                    {{#notsubmitted}}<span class="badge pf-pill-muted">{{#str}}statussaved, mod_peerfeedback{{/str}}</span>{{/notsubmitted}}
+                    {{^notsubmitted}}{{#reviewed}}<span class="badge pf-pill-ok">{{#str}}statusreviewed, mod_peerfeedback{{/str}}</span>{{/reviewed}}
+                    {{^reviewed}}<span class="badge pf-pill-wait">{{#str}}notreviewed, mod_peerfeedback{{/str}}</span>{{/reviewed}}{{/notsubmitted}}
+                    {{#outsidegroup}}<span class="badge pf-pill-muted">{{#str}}outsidegroup, mod_peerfeedback{{/str}}</span>{{/outsidegroup}}
+                    {{#editedaftergrade}}<span class="badge pf-pill-wait">{{#str}}editedaftergrade, mod_peerfeedback{{/str}}</span>{{/editedaftergrade}}
+                </div>
+                <dl class="pf-answers">
+                    {{#answers}}<dt>{{question}}</dt><dd class="pf-pre">{{value}}</dd>{{/answers}}
+                </dl>
+                {{^notsubmitted}}
+                <form method="post" action="{{actionurl}}" class="pf-reviewbar">
+                    <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+                    <input type="hidden" name="dir" value="{{dir}}"><input type="hidden" name="userid" value="{{userid}}">
+                    <input type="hidden" name="responseid" value="{{id}}">
+                    {{#grading}}<label class="mb-0" for="pf-g{{id}}">{{#str}}grade, mod_peerfeedback{{/str}}</label>
+                    <input type="text" inputmode="decimal" id="pf-g{{id}}" name="grade" value="{{grade}}" class="form-control pf-gradebox">
+                    <span class="text-muted">/ {{maxgrade}}</span>{{/grading}}
+                    <label class="visually-hidden" for="pf-c{{id}}">{{#str}}teachercomment, mod_peerfeedback{{/str}}</label>
+                    <textarea id="pf-c{{id}}" name="comment" rows="1" class="form-control pf-commentbox"
+                        placeholder="{{#str}}commentplaceholder, mod_peerfeedback{{/str}}">{{comment}}</textarea>
+                    <button type="submit" name="action" value="save" class="btn btn-outline-primary">{{#str}}save, mod_peerfeedback{{/str}}</button>
+                    {{^reviewed}}<button type="submit" name="action" value="markreviewed" class="btn btn-primary">{{#str}}markreviewed, mod_peerfeedback{{/str}}</button>{{/reviewed}}
+                    {{#reviewed}}<button type="submit" name="action" value="reopen" class="btn btn-outline-secondary">{{#str}}reopen, mod_peerfeedback{{/str}}</button>{{/reviewed}}
+                </form>
+                {{/notsubmitted}}
+            </article>
+            {{/cards}}
+            {{#grading}}{{#selectedname}}<p class="pf-average">{{#str}}averagefor, mod_peerfeedback, {{selectedname}}{{/str}}
+                <strong>{{#average}}{{average}}{{/average}}{{^average}}–{{/average}}</strong></p>{{/selectedname}}{{/grading}}
+        </div>
+    </div>
+    {{/hasusers}}
+</div>

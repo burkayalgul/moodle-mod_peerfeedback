@@ -58,3 +58,22 @@
     .path-mod-peerfeedback .pf-actions .d-flex {width: 100%;}
 }
 .path-mod-peerfeedback .pf-pre {white-space: pre-line;}
+.path-mod-peerfeedback .pf-review-top {display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; margin-bottom: 1rem;}
+.path-mod-peerfeedback .pf-review-grid {display: grid; grid-template-columns: minmax(12rem, 16rem) 1fr; gap: 1rem; align-items: start;}
+@media (max-width: 768px) {
+    .path-mod-peerfeedback .pf-review-grid {grid-template-columns: 1fr;}
+}
+.path-mod-peerfeedback .pf-pill-ok {background: #e3f4ea; color: #136238;}
+.path-mod-peerfeedback .pf-pill-wait {background: #fdf0e6; color: #8a4500;}
+.path-mod-peerfeedback .pf-pill-muted {background: #eceef2; color: #3b4048;}
+.path-mod-peerfeedback .list-group-item.active .badge {background: #fff; color: #0b5ea8;}
+.path-mod-peerfeedback .pf-card {margin-bottom: .75rem;}
+.path-mod-peerfeedback .pf-card-head {display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem;}
+.path-mod-peerfeedback .pf-who {font-weight: 600; margin-right: .25rem;}
+.path-mod-peerfeedback .pf-answers dt {font-weight: 400; color: #555; font-size: .85rem;}
+.path-mod-peerfeedback .pf-answers dd {margin-bottom: .4rem;}
+.path-mod-peerfeedback .pf-reviewbar {display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+    border-top: 1px dashed #d5d9e0; padding-top: .6rem;}
+.path-mod-peerfeedback .pf-gradebox {width: 5rem;}
+.path-mod-peerfeedback .pf-commentbox {flex: 1 1 14rem; min-height: 2.4rem;}
+.path-mod-peerfeedback .pf-average {margin-top: .5rem;}
