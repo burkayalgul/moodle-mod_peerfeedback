@@ -185,3 +185,7 @@ $string['students'] = 'Students';
 $string['view'] = 'View';
 $string['viewgiven'] = 'Feedback given by';
 $string['viewreceived'] = 'Feedback received by';
+$string['exportbygiverheading'] = 'Export feedback by giver';
+$string['exportbyreceiverheading'] = 'Export feedback by receiver';
+$string['giver'] = 'Giver';
+$string['receiver'] = 'Receiver';
