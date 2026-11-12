@@ -1,0 +1,121 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+{{!
+    @template mod_peerfeedback/groups
+
+    Group management (layout A): one student list with checkboxes, groups listed below.
+
+    Example context (json):
+    {"actionurl": "#", "cmid": 1, "sesskey": "x", "hasusers": true, "unassignedcount": 1, "pairurl": "#",
+     "users": [{"userid": 3, "fullname": "Ayşe Kaya", "groupname": null}],
+     "groups": [{"groupid": 1, "name": "Group 1", "count": 1, "empty": false,
+        "members": [{"userid": 4, "fullname": "Can Yılmaz"}]}],
+     "groupoptions": [{"groupid": 1, "name": "Group 1"}]}
+}}
+<div class="pf-groups">
+    <div class="pf-toolbar d-flex flex-wrap gap-2 align-items-end mb-3">
+        <form method="post" action="{{actionurl}}" class="d-inline">
+            <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="creategroup">
+            <button type="submit" class="btn btn-outline-secondary">+ {{#str}}newgroup, mod_peerfeedback{{/str}}</button>
+        </form>
+        <a href="{{pairurl}}" class="btn btn-outline-secondary">{{#str}}paireveryone, mod_peerfeedback{{/str}}</a>
+        <details class="pf-random">
+            <summary class="btn btn-outline-secondary">{{#str}}random, mod_peerfeedback{{/str}}</summary>
+            <form method="post" action="{{actionurl}}" class="pf-random-form card card-body mt-2">
+                <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+                <input type="hidden" name="action" value="random">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    <label class="mb-0"><input type="radio" name="mode" value="groups" checked> {{#str}}randomgroups, mod_peerfeedback{{/str}}</label>
+                    <label class="mb-0"><input type="radio" name="mode" value="size"> {{#str}}randomsize, mod_peerfeedback{{/str}}</label>
+                    <label class="mb-0">{{#str}}number, mod_peerfeedback{{/str}}
+                        <input type="number" name="value" min="1" value="2" class="form-control d-inline-block w-auto"></label>
+                    <label class="mb-0"><input type="checkbox" name="reshuffle" value="1"> {{#str}}reshuffle, mod_peerfeedback{{/str}}</label>
+                    <button type="submit" class="btn btn-primary">{{#str}}distribute, mod_peerfeedback{{/str}}</button>
+                </div>
+                <small class="text-muted mt-1">{{#str}}randomhelp, mod_peerfeedback, {{unassignedcount}}{{/str}}</small>
+            </form>
+        </details>
+    </div>
+
+    {{^hasusers}}<div class="alert alert-info">{{#str}}nostudents, mod_peerfeedback{{/str}}</div>{{/hasusers}}
+    {{#hasusers}}
+    <form method="post" action="{{actionurl}}">
+        <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="action" value="assign">
+        <div class="pf-assignbar d-flex flex-wrap gap-2 align-items-center mb-2">
+            <label for="pf-groupid" class="mb-0">{{#str}}assignselectedto, mod_peerfeedback{{/str}}</label>
+            <select id="pf-groupid" name="groupid" class="form-select w-auto">
+                {{#groupoptions}}<option value="{{groupid}}">{{name}}</option>{{/groupoptions}}
+                <option value="0">{{#str}}anewgroup, mod_peerfeedback{{/str}}</option>
+            </select>
+            <button type="submit" class="btn btn-primary">{{#str}}assign, mod_peerfeedback{{/str}}</button>
+        </div>
+        <table class="table table-sm table-hover align-middle pf-userlist">
+            <thead><tr>
+                <th scope="col" class="pf-check"><input type="checkbox" data-pf-selectall aria-label="{{#str}}selectall{{/str}}"></th>
+                <th scope="col">{{#str}}student, mod_peerfeedback{{/str}}</th>
+                <th scope="col">{{#str}}group, mod_peerfeedback{{/str}}</th>
+            </tr></thead>
+            <tbody>
+            {{#users}}
+                <tr>
+                    <td class="pf-check"><input type="checkbox" name="userids[]" value="{{userid}}" data-pf-user
+                        id="pf-u{{userid}}"></td>
+                    <td><label for="pf-u{{userid}}" class="mb-0">{{fullname}}</label></td>
+                    <td>{{#groupname}}<span class="badge pf-badge-group">{{groupname}}</span>{{/groupname}}
+                        {{^groupname}}<span class="badge pf-badge-none">{{#str}}unassigned, mod_peerfeedback{{/str}}</span>{{/groupname}}</td>
+                </tr>
+            {{/users}}
+            </tbody>
+        </table>
+    </form>
+    {{/hasusers}}
+
+    <div class="pf-groupboxes">
+    {{#groups}}
+        <section class="pf-groupbox">
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                <form method="post" action="{{actionurl}}" class="d-flex gap-1 align-items-center">
+                    <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+                    <input type="hidden" name="action" value="rename"><input type="hidden" name="groupid" value="{{groupid}}">
+                    <input type="text" name="name" value="{{name}}" class="form-control form-control-sm pf-groupname"
+                        aria-label="{{#str}}groupname, mod_peerfeedback{{/str}}">
+                    <span class="text-muted text-nowrap">({{count}})</span>
+                    <button type="submit" class="btn btn-sm btn-link">{{#str}}rename, mod_peerfeedback{{/str}}</button>
+                </form>
+                <form method="post" action="{{actionurl}}">
+                    <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+                    <input type="hidden" name="action" value="deletegroup"><input type="hidden" name="groupid" value="{{groupid}}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">{{#str}}deletegroup, mod_peerfeedback{{/str}}</button>
+                </form>
+            </div>
+            <div class="pf-chips">
+                {{#members}}
+                <form method="post" action="{{actionurl}}" class="pf-chip">
+                    <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
+                    <input type="hidden" name="action" value="unassign"><input type="hidden" name="userid" value="{{userid}}">
+                    <span>{{fullname}}</span>
+                    <button type="submit" class="pf-chip-x" title="{{#str}}removefromgroup, mod_peerfeedback{{/str}}"
+                        aria-label="{{#str}}removefromgroup, mod_peerfeedback{{/str}}: {{fullname}}">×</button>
+                </form>
+                {{/members}}
+                {{#empty}}<span class="text-muted">{{#str}}emptygroup, mod_peerfeedback{{/str}}</span>{{/empty}}
+            </div>
+        </section>
+    {{/groups}}
+    </div>
+</div>

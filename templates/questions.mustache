@@ -1,0 +1,67 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_peerfeedback/questions
+
+    Question list with add form.
+
+    Example context (json):
+    {"questions": [{"number": "Q1", "text": "How well did they communicate?", "type": "Rating scale",
+      "required": true, "editurl": "#", "upurl": null, "downurl": "#", "deleteurl": "#"}],
+     "hasquestions": true, "locked": false, "cmid": 1, "addurl": "#",
+     "types": [{"value": "rating", "label": "Rating scale"}]}
+}}
+<div class="pf-questions">
+    {{#locked}}<div class="alert alert-info">{{#str}}questionslocked, mod_peerfeedback{{/str}}</div>{{/locked}}
+    <form method="get" action="{{addurl}}" class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <input type="hidden" name="id" value="{{cmid}}">
+        <input type="hidden" name="action" value="add">
+        <label for="pf-addtype" class="mb-0">{{#str}}addquestion, mod_peerfeedback{{/str}}</label>
+        <select id="pf-addtype" name="qtype" class="form-select w-auto">
+            {{#types}}<option value="{{value}}">{{label}}</option>{{/types}}
+        </select>
+        <button type="submit" class="btn btn-primary">{{#str}}add{{/str}}</button>
+    </form>
+    {{^hasquestions}}<p class="text-muted">{{#str}}noquestions, mod_peerfeedback{{/str}}</p>{{/hasquestions}}
+    {{#hasquestions}}
+    <table class="table table-hover align-middle">
+        <thead><tr>
+            <th scope="col"></th>
+            <th scope="col">{{#str}}questiontext, mod_peerfeedback{{/str}}</th>
+            <th scope="col">{{#str}}questiontype, mod_peerfeedback{{/str}}</th>
+            <th scope="col">{{#str}}requiredquestion, mod_peerfeedback{{/str}}</th>
+            <th scope="col"><span class="visually-hidden">{{#str}}actions{{/str}}</span></th>
+        </tr></thead>
+        <tbody>
+        {{#questions}}
+            <tr>
+                <td class="fw-bold">{{number}}</td>
+                <td>{{text}}</td>
+                <td>{{type}}</td>
+                <td>{{#required}}{{#str}}yes{{/str}}{{/required}}</td>
+                <td class="text-nowrap">
+                    {{#upurl}}<a href="{{upurl}}" class="btn btn-sm btn-outline-secondary" title="{{#str}}moveup{{/str}}">↑</a>{{/upurl}}
+                    {{#downurl}}<a href="{{downurl}}" class="btn btn-sm btn-outline-secondary" title="{{#str}}movedown{{/str}}">↓</a>{{/downurl}}
+                    <a href="{{editurl}}" class="btn btn-sm btn-outline-primary">{{#str}}edit{{/str}}</a>
+                    {{#deleteurl}}<a href="{{deleteurl}}" class="btn btn-sm btn-outline-danger">{{#str}}delete{{/str}}</a>{{/deleteurl}}
+                </td>
+            </tr>
+        {{/questions}}
+        </tbody>
+    </table>
+    {{/hasquestions}}
+</div>

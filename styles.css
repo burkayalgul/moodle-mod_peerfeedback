@@ -1,0 +1,79 @@
+.path-mod-peerfeedback .pf-badge-group {background: #e7f0fa; color: #0b5ea8;}
+.path-mod-peerfeedback .pf-badge-none {background: #fdf0e6; color: #8a4500;}
+.path-mod-peerfeedback .pf-userlist .pf-check {width: 2.5rem;}
+.path-mod-peerfeedback .pf-groupboxes {display: grid; gap: .75rem; margin-top: 1rem;}
+.path-mod-peerfeedback .pf-groupbox {border: 1px solid #dee2e6; border-radius: .5rem; padding: .75rem;}
+.path-mod-peerfeedback .pf-groupname {max-width: 14rem;}
+.path-mod-peerfeedback .pf-chips {display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem;}
+.path-mod-peerfeedback .pf-chip {display: inline-flex; align-items: center; gap: .25rem; background: #f1f3f6;
+    border-radius: 1rem; padding: .15rem .3rem .15rem .7rem; margin: 0;}
+.path-mod-peerfeedback .pf-chip-x {border: 0; background: transparent; line-height: 1; padding: 0 .3rem; font-size: 1.1rem;}
+.path-mod-peerfeedback .pf-random > summary {list-style: none;}
+.path-mod-peerfeedback .pf-random > summary::-webkit-details-marker {display: none;}
+.path-mod-peerfeedback .pf-branding {text-align: center; margin: 2rem 0 .5rem;}
+.path-mod-peerfeedback .pf-branding img {height: 30px; width: auto;}
+.path-mod-peerfeedback .pf-stat {text-decoration: none; color: inherit; height: 100%;}
+.path-mod-peerfeedback .pf-stat-n {font-size: 2rem; font-weight: 600; color: #0b5ea8; line-height: 1.1;}
+.path-mod-peerfeedback .pf-answer {max-width: 46rem;}
+.path-mod-peerfeedback .pf-tabs {display: flex; gap: .4rem; overflow-x: auto; padding-bottom: .25rem; margin-bottom: .75rem;}
+.path-mod-peerfeedback .pf-tab {flex: 0 0 auto; padding: .4rem .9rem; border-radius: 1.2rem; background: #f1f3f6; color: #1d2125;
+    text-decoration: none; white-space: nowrap; border: 1px solid transparent;}
+.path-mod-peerfeedback .pf-tab.pf-saved {border-color: #136238;}
+.path-mod-peerfeedback .pf-tab.pf-done {background: #e3f4ea; color: #136238;}
+.path-mod-peerfeedback .pf-tab.pf-active {background: #0b5ea8; color: #fff;}
+.path-mod-peerfeedback .pf-progress {height: 6px; background: #eceef2; border-radius: 3px; overflow: hidden;}
+.path-mod-peerfeedback .pf-progress span {display: block; height: 100%; background: #136238;}
+.path-mod-peerfeedback .pf-progress-text {font-size: .85rem; color: #555; margin: .25rem 0 1rem;}
+.path-mod-peerfeedback .pf-person {display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem;}
+.path-mod-peerfeedback .pf-avatar {width: 2.75rem; height: 2.75rem; border-radius: 50%; background: #dbe8f6; color: #0b5ea8;
+    display: flex; align-items: center; justify-content: center; font-weight: 600;}
+.path-mod-peerfeedback .pf-person-name {font-weight: 600; font-size: 1.1rem;}
+.path-mod-peerfeedback .pf-person-meta {color: #555; font-size: .9rem;}
+.path-mod-peerfeedback .pf-q {border: 1px solid #e3e6eb; border-radius: .6rem; padding: .9rem 1rem; margin-bottom: .75rem;}
+.path-mod-peerfeedback .pf-q.pf-has-error {border-color: #ca3120;}
+.path-mod-peerfeedback .pf-q-title {font-size: 1rem; font-weight: 600; float: none; width: auto; margin-bottom: .6rem;}
+.path-mod-peerfeedback .pf-q-title label {margin: 0;}
+.path-mod-peerfeedback .pf-qnum {color: #0b5ea8; margin-right: .35rem;}
+.path-mod-peerfeedback .pf-req {color: #ca3120; margin-left: .2rem;}
+.path-mod-peerfeedback .pf-heading {margin: 1.25rem 0 .5rem;}
+.path-mod-peerfeedback .pf-rating {display: flex; flex-wrap: wrap; gap: .4rem;}
+.path-mod-peerfeedback .pf-scale {position: relative; margin: 0;}
+.path-mod-peerfeedback .pf-scale input {position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip: rect(0 0 0 0);}
+.path-mod-peerfeedback .pf-scale span {display: flex; align-items: center; justify-content: center; width: 2.6rem; height: 2.6rem;
+    border: 1px solid #b8bec8; border-radius: .5rem; font-weight: 600; cursor: pointer;}
+.path-mod-peerfeedback .pf-scale input:checked + span {background: #0b5ea8; border-color: #0b5ea8; color: #fff;}
+.path-mod-peerfeedback .pf-scale input:focus-visible + span {outline: 3px solid #8fb7e3; outline-offset: 2px;}
+.path-mod-peerfeedback .pf-scale input:disabled + span {cursor: default; opacity: .75;}
+.path-mod-peerfeedback .pf-rating-wrap {display: inline-block; max-width: 100%;}
+.path-mod-peerfeedback .pf-scale-labels {display: flex; justify-content: space-between; gap: 1rem; font-size: .85rem;
+    color: #555; margin-top: .3rem;}
+.path-mod-peerfeedback .pf-grid th[scope="row"] {font-weight: 500;}
+.path-mod-peerfeedback .pf-number {max-width: 10rem;}
+.path-mod-peerfeedback .pf-error {color: #ca3120; margin-top: .4rem; font-size: .9rem;}
+.path-mod-peerfeedback .pf-review {margin-bottom: .75rem; background: #f6f8fb;}
+.path-mod-peerfeedback .pf-actions {display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+    flex-wrap: wrap; margin-top: 1rem;}
+@media (max-width: 600px) {
+    .path-mod-peerfeedback .pf-actions .btn {flex: 1 1 auto;}
+    .path-mod-peerfeedback .pf-actions .d-flex {width: 100%;}
+}
+.path-mod-peerfeedback .pf-pre {white-space: pre-line;}
+.path-mod-peerfeedback .pf-review-top {display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; margin-bottom: 1rem;}
+.path-mod-peerfeedback .pf-review-grid {display: grid; grid-template-columns: minmax(12rem, 16rem) 1fr; gap: 1rem; align-items: start;}
+@media (max-width: 768px) {
+    .path-mod-peerfeedback .pf-review-grid {grid-template-columns: 1fr;}
+}
+.path-mod-peerfeedback .pf-pill-ok {background: #e3f4ea; color: #136238;}
+.path-mod-peerfeedback .pf-pill-wait {background: #fdf0e6; color: #8a4500;}
+.path-mod-peerfeedback .pf-pill-muted {background: #eceef2; color: #3b4048;}
+.path-mod-peerfeedback .list-group-item.active .badge {background: #fff; color: #0b5ea8;}
+.path-mod-peerfeedback .pf-card {margin-bottom: .75rem;}
+.path-mod-peerfeedback .pf-card-head {display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem;}
+.path-mod-peerfeedback .pf-who {font-weight: 600; margin-right: .25rem;}
+.path-mod-peerfeedback .pf-answers dt {font-weight: 400; color: #555; font-size: .85rem;}
+.path-mod-peerfeedback .pf-answers dd {margin-bottom: .4rem;}
+.path-mod-peerfeedback .pf-reviewbar {display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+    border-top: 1px dashed #d5d9e0; padding-top: .6rem;}
+.path-mod-peerfeedback .pf-gradebox {width: 5rem;}
+.path-mod-peerfeedback .pf-commentbox {flex: 1 1 14rem; min-height: 2.4rem;}
+.path-mod-peerfeedback .pf-average {margin-top: .5rem;}

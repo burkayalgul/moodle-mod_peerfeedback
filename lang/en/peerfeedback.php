@@ -1,0 +1,215 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * English strings for mod_peerfeedback.
+ *
+ * @package    mod_peerfeedback
+ * @copyright  2026 Burkay ALGUL
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+$string['addquestion'] = 'Add question';
+$string['anewgroup'] = 'A new group';
+$string['assign'] = 'Assign';
+$string['assignselectedto'] = 'Assign selected to';
+$string['averagefor'] = 'Average grade for {$a} (as giver):';
+$string['back'] = 'Back';
+$string['brandingalt'] = 'EduZ Learning × Development HUB, designed by Burkay ALGUL';
+$string['closed'] = 'This activity is closed. You can no longer change your feedback.';
+$string['commentplaceholder'] = 'Comment for the student (optional)';
+$string['completiondetail:submit'] = 'Submit feedback for all group members';
+$string['completionsubmit'] = 'Student must submit feedback for all group members';
+$string['confirmassign'] = 'Move {$a->count} selected student(s) to "{$a->group}".';
+$string['confirmdeletegroup'] = 'Delete group "{$a}".';
+$string['confirmdeletequestion'] = 'Delete this question?';
+$string['confirmdiscard'] = '{$a} saved but not submitted feedback will no longer match the groups and will be discarded. Continue?';
+$string['confirmpair'] = 'This replaces all current groups with random pairs (one group of three if the number of students is odd). Continue?';
+$string['confirmreshuffle'] = 'Delete all groups and re-shuffle everyone into new random groups.';
+$string['confirmunassign'] = 'Remove {$a} from their group.';
+$string['criterialines'] = 'Criteria (one per line)';
+$string['defaultgroupname'] = 'Group {$a}';
+$string['deletegroup'] = 'Delete group';
+$string['distribute'] = 'Distribute';
+$string['draftsdiscarded'] = '{$a} saved but not submitted feedback no longer matched the new groups and was discarded.';
+$string['editedaftergrade'] = 'Edited after grading';
+$string['editquestion'] = 'Edit question';
+$string['emptygroup'] = 'Empty';
+$string['err_configlocked'] = 'Feedback has already been submitted, so options, criteria and scales can only be extended, not removed or reduced.';
+$string['err_deletelocked'] = 'Feedback has already been submitted, so questions can no longer be deleted.';
+$string['err_dueafteropen'] = 'The due date must be after the open date.';
+$string['err_gradeoutofrange'] = 'Enter a grade between 0 and {$a}.';
+$string['err_invalidoption'] = 'Choose one of the listed options.';
+$string['err_maxgrade'] = 'Enter a whole number between 1 and 10000.';
+$string['err_minmax'] = 'The minimum must not be larger than the maximum.';
+$string['err_needcriteria'] = 'Enter at least one criterion.';
+$string['err_needoptions'] = 'Enter at least two options.';
+$string['err_notallowed'] = 'You cannot change this feedback now.';
+$string['err_notnumber'] = 'Enter a number.';
+$string['err_notsubmitted'] = 'This feedback has not been submitted yet.';
+$string['err_outofrange'] = 'This value is out of range.';
+$string['err_randomvalue'] = 'Enter a number of 1 or more.';
+$string['err_ratingmax'] = 'The scale must go up to a number between 2 and 10.';
+$string['err_required'] = 'This question is required.';
+$string['err_toolong'] = 'This answer is too long (maximum 255 characters).';
+$string['eventresponsereviewed'] = 'Peer feedback reviewed';
+$string['eventresponsesubmitted'] = 'Peer feedback submitted';
+$string['export'] = 'Export';
+$string['exportbygiver'] = 'By giver';
+$string['exportbygiverheading'] = 'Export feedback by giver';
+$string['exportbyreceiver'] = 'By receiver';
+$string['exportbyreceiverheading'] = 'Export feedback by receiver';
+$string['feedbackabout'] = 'About {$a}';
+$string['feedbacknumber'] = 'Feedback {$a}';
+$string['feedbacksettings'] = 'Feedback settings';
+$string['feedbacksubmitted'] = 'Feedback submitted';
+$string['filter'] = 'Show';
+$string['filterall'] = 'All';
+$string['filternotreviewed'] = 'Not reviewed';
+$string['filterreviewed'] = 'Reviewed';
+$string['fixerrors'] = 'Please answer the questions marked below.';
+$string['giver'] = 'Giver';
+$string['grade'] = 'Grade';
+$string['gradebook'] = 'Send average grade to gradebook';
+$string['grading'] = 'Teacher grades each feedback';
+$string['grading_help'] = 'When enabled, the teacher can give a grade to every piece of feedback a student writes. Use this to assess how well students give feedback.';
+$string['group'] = 'Group';
+$string['groupname'] = 'Group name';
+$string['groups'] = 'Groups';
+$string['headingtext'] = 'Heading or instructions';
+$string['locked'] = 'Your teacher has reviewed this feedback, so it can no longer be changed.';
+$string['markedreviewed'] = 'Marked as reviewed';
+$string['markreviewed'] = 'Mark as reviewed';
+$string['maxgrade'] = 'Maximum grade';
+$string['maxlabel'] = 'Label for the highest value (optional)';
+$string['maxvalue'] = 'Maximum (optional)';
+$string['minlabel'] = 'Label for the lowest value (optional)';
+$string['minvalue'] = 'Minimum (optional)';
+$string['modulename'] = 'Peer feedback';
+$string['modulename_help'] = 'Students answer a set of questions about each other member of their group. Teachers see all feedback, can review and grade it, and can export the results.';
+$string['modulenameplural'] = 'Peer feedback';
+$string['newgroup'] = 'New group';
+$string['nofeedbackyet'] = 'Nothing to show yet.';
+$string['nogroup'] = 'You have not been assigned to a group yet.';
+$string['noneselected'] = 'Select at least one student first.';
+$string['nopeers'] = 'There is nobody else in your group to give feedback to yet.';
+$string['noquestions'] = 'No questions yet. Add the first one above.';
+$string['nostudents'] = 'There are no students enrolled who can give feedback.';
+$string['nothingtoreview'] = 'Nothing to show for this student with the current filter.';
+$string['notopen'] = 'This activity opens on {$a}.';
+$string['notreviewed'] = 'Not reviewed';
+$string['notsubmitted'] = 'Not submitted';
+$string['number'] = 'Number';
+$string['optionslines'] = 'Options (one per line)';
+$string['outsidegroup'] = 'Outside current group';
+$string['overview'] = 'Overview';
+$string['overviewgroups'] = 'Groups';
+$string['overviewquestions'] = 'Questions';
+$string['overviewreviewed'] = 'Reviewed';
+$string['overviewstudents'] = 'Students';
+$string['overviewsubmitted'] = 'Feedback submitted';
+$string['overviewunassigned'] = '{$a} not in a group';
+$string['paireveryone'] = 'Pair everyone';
+$string['peerfeedback:addinstance'] = 'Add a new peer feedback activity';
+$string['peerfeedback:export'] = 'Export peer feedback';
+$string['peerfeedback:managegroups'] = 'Manage peer feedback groups';
+$string['peerfeedback:managequestions'] = 'Manage peer feedback questions';
+$string['peerfeedback:review'] = 'Review and grade peer feedback';
+$string['peerfeedback:submit'] = 'Give peer feedback';
+$string['peerfeedback:view'] = 'View peer feedback activity';
+$string['peers'] = 'People to give feedback to';
+$string['pluginadministration'] = 'Peer feedback administration';
+$string['pluginname'] = 'Peer feedback';
+$string['position'] = '{$a->n} of {$a->total}';
+$string['privacy:given'] = 'Feedback given';
+$string['privacy:metadata:core_grades'] = 'The average grade of a student\'s feedback is sent to the gradebook.';
+$string['privacy:metadata:peerfeedback_answer'] = 'The answers in a piece of feedback.';
+$string['privacy:metadata:peerfeedback_answer:value'] = 'The answer given to a question.';
+$string['privacy:metadata:peerfeedback_member'] = 'Membership of a student in a group of a peer feedback activity.';
+$string['privacy:metadata:peerfeedback_member:groupid'] = 'The group the user belongs to.';
+$string['privacy:metadata:peerfeedback_member:userid'] = 'The ID of the group member.';
+$string['privacy:metadata:peerfeedback_response'] = 'Feedback one user gives about another, with the teacher review.';
+$string['privacy:metadata:peerfeedback_response:giverid'] = 'The ID of the user who gave the feedback.';
+$string['privacy:metadata:peerfeedback_response:grade'] = 'The teacher grade for the feedback.';
+$string['privacy:metadata:peerfeedback_response:receiverid'] = 'The ID of the user the feedback is about.';
+$string['privacy:metadata:peerfeedback_response:reviewerid'] = 'The ID of the teacher who reviewed the feedback.';
+$string['privacy:metadata:peerfeedback_response:status'] = 'Whether the feedback is saved, submitted or reviewed.';
+$string['privacy:metadata:peerfeedback_response:teachercomment'] = 'The teacher comment on the feedback.';
+$string['privacy:metadata:peerfeedback_response:timemodified'] = 'The time the feedback was last changed.';
+$string['privacy:metadata:peerfeedback_response:timesubmitted'] = 'The time the feedback was submitted.';
+$string['privacy:received'] = 'Feedback received';
+$string['privacy:reviews'] = 'Reviews written';
+$string['progress'] = '{$a->done} of {$a->total} submitted';
+$string['qtype_grid'] = 'Criteria grid';
+$string['qtype_heading'] = 'Section heading';
+$string['qtype_longtext'] = 'Long text';
+$string['qtype_multichoice'] = 'Multiple choice (checkboxes)';
+$string['qtype_number'] = 'Number';
+$string['qtype_rating'] = 'Rating scale';
+$string['qtype_shorttext'] = 'Short text';
+$string['qtype_singlechoice'] = 'Single choice';
+$string['questionlockednote'] = 'Feedback has already been submitted. You can edit the wording and add options or criteria, but not remove them.';
+$string['questions'] = 'Questions';
+$string['questionslocked'] = 'Feedback has already been submitted. Questions can be edited but no longer deleted.';
+$string['questiontext'] = 'Question';
+$string['questiontype'] = 'Question type';
+$string['random'] = 'Random…';
+$string['randomgroups'] = 'Number of groups';
+$string['randomhelp'] = 'Distributes the {$a} unassigned students into new groups of balanced size. Tick "Re-shuffle everyone" to start over with all students.';
+$string['randomsize'] = 'People per group';
+$string['receiver'] = 'Receiver';
+$string['removefromgroup'] = 'Remove from group';
+$string['rename'] = 'Rename';
+$string['reopen'] = 'Reopen';
+$string['requiredquestion'] = 'Required';
+$string['reshuffle'] = 'Re-shuffle everyone';
+$string['resultsall'] = 'Feedback in your group';
+$string['resultsgiven'] = 'Feedback you gave';
+$string['resultsreceived'] = 'Feedback about you';
+$string['review'] = 'Review';
+$string['save'] = 'Save';
+$string['savenext'] = 'Save and next';
+$string['scalemax'] = 'Scale goes from 1 to';
+$string['selfeval'] = 'Students also evaluate themselves';
+$string['selfeval_help'] = 'When enabled, each student answers the questions about themselves as well as about their group members.';
+$string['showbranding'] = 'Show branding footer';
+$string['showbranding_desc'] = 'Show the small EduZ logo and author signature at the bottom of peer feedback pages.';
+$string['statusnotstarted'] = 'Not started';
+$string['statusreviewed'] = 'Reviewed';
+$string['statussaved'] = 'Saved, not submitted';
+$string['statussubmitted'] = 'Submitted';
+$string['student'] = 'Student';
+$string['students'] = 'Students';
+$string['submit'] = 'Submit';
+$string['teachercomment'] = 'Teacher comment';
+$string['teachergrade'] = 'Teacher grade';
+$string['teachergrading'] = 'Teacher grading';
+$string['teacherreview'] = 'Teacher review';
+$string['timedue'] = 'Due date';
+$string['timeopen'] = 'Open date';
+$string['unassigned'] = 'Unassigned';
+$string['view'] = 'View';
+$string['viewgiven'] = 'Feedback given by';
+$string['viewreceived'] = 'Feedback received by';
+$string['visall'] = 'All feedback in their group (names of givers hidden)';
+$string['visgiven'] = 'Only feedback they gave';
+$string['visibility'] = 'What students can see';
+$string['visibility_help'] = 'Choose what students see after feedback is submitted. Givers are always hidden from students when they look at feedback about someone. Teachers always see everything.';
+$string['visnone'] = 'Nothing';
+$string['visreceived'] = 'Feedback they received (names of givers hidden)';
+$string['yourself'] = 'Yourself';
