@@ -19,7 +19,9 @@ The teacher writes a set of questions once. Every student then answers those que
 - **Groups that belong to the activity**, independent of course groups:
   - tick names and assign them to a group,
   - distribute students randomly (by number of groups or group size),
-  - pair everyone in one click (odd numbers get one group of three).
+  - pair everyone in one click (odd numbers get one group of three),
+  - give everyone a group of their own (for self-evaluation),
+  - pair or separate only the students you tick.
 - **Survey-style question types:** single choice, multiple choice, rating scale (1–N), number, short text, long text, criteria grid (several criteria on one scale), and section headings. Required questions are enforced.
 - **A friendly answering screen:** students work through their peers one at a time, with progress shown. It works well on phones.
 - **Flexible student visibility** (per activity):

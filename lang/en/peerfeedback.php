@@ -25,6 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addquestion'] = 'Add question';
+$string['aloneeveryone'] = 'Everyone alone';
+$string['aloneselected'] = 'Selected alone';
 $string['anewgroup'] = 'A new group';
 $string['assign'] = 'Assign';
 $string['assignselectedto'] = 'Assign selected to';
@@ -35,11 +37,14 @@ $string['closed'] = 'This activity is closed. You can no longer change your feed
 $string['commentplaceholder'] = 'Comment for the student (optional)';
 $string['completiondetail:submit'] = 'Submit feedback for all group members';
 $string['completionsubmit'] = 'Student must submit feedback for all group members';
+$string['confirmalone'] = 'This replaces all current groups with one group per student, named after the student. Use it with self-evaluation. Continue?';
+$string['confirmaloneselected'] = 'Give each of the {$a} selected students a group of their own. Other groups stay as they are.';
 $string['confirmassign'] = 'Move {$a->count} selected student(s) to "{$a->group}".';
 $string['confirmdeletegroup'] = 'Delete group "{$a}".';
 $string['confirmdeletequestion'] = 'Delete this question?';
 $string['confirmdiscard'] = '{$a} saved but not submitted feedback will no longer match the groups and will be discarded. Continue?';
 $string['confirmpair'] = 'This replaces all current groups with random pairs (one group of three if the number of students is odd). Continue?';
+$string['confirmpairselected'] = 'Put the {$a} selected students into random pairs (one group of three if the number is odd). Other groups stay as they are.';
 $string['confirmreshuffle'] = 'Delete all groups and re-shuffle everyone into new random groups.';
 $string['confirmunassign'] = 'Remove {$a} from their group.';
 $string['criterialines'] = 'Criteria (one per line)';
@@ -125,6 +130,7 @@ $string['overviewstudents'] = 'Students';
 $string['overviewsubmitted'] = 'Feedback submitted';
 $string['overviewunassigned'] = '{$a} not in a group';
 $string['paireveryone'] = 'Pair everyone';
+$string['pairselected'] = 'Pair selected';
 $string['peerfeedback:addinstance'] = 'Add a new peer feedback activity';
 $string['peerfeedback:export'] = 'Export peer feedback';
 $string['peerfeedback:managegroups'] = 'Manage peer feedback groups';

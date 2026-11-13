@@ -89,6 +89,64 @@ final class group_manager_test extends \advanced_testcase {
         $this->assertSame([1], $this->sizes());
     }
 
+    public function test_alone_all_puts_each_student_in_own_named_group(): void {
+        $users = $this->setup_students(3);
+        $g = $this->gm->create_group('Old team');
+        $this->gm->assign([$users[0]->id, $users[1]->id], $g);
+        $this->gm->alone_all();
+        $this->assertSame([1, 1, 1], $this->sizes());
+        $names = array_map(fn($grp) => $grp->name, $this->gm->get_groups());
+        sort($names);
+        $expected = array_map('fullname', $users);
+        sort($expected);
+        $this->assertSame($expected, $names);
+        foreach ($users as $u) {
+            $this->assertSame(fullname($u), $this->gm->get_group_of($u->id)->name);
+        }
+    }
+
+    public function test_pair_selected_moves_only_ticked_students(): void {
+        $users = $this->setup_students(6);
+        $g = $this->gm->create_group('Team A');
+        $this->gm->assign(array_map(fn($u) => $u->id, $users), $g);
+        $this->gm->pair_selected([$users[0]->id, $users[1]->id, $users[2]->id, $users[3]->id], 5);
+        $this->assertSame([2, 2, 2], $this->sizes());
+        $this->assertSame($g, (int)$this->gm->get_group_of($users[4]->id)->id);
+        $this->assertSame($g, (int)$this->gm->get_group_of($users[5]->id)->id);
+        $this->assertNotEquals($g, (int)$this->gm->get_group_of($users[0]->id)->id);
+    }
+
+    public function test_pair_selected_odd_makes_one_triple(): void {
+        $users = $this->setup_students(4);
+        $this->gm->pair_selected([$users[0]->id, $users[1]->id, $users[2]->id], 3);
+        $this->assertSame([3], $this->sizes());
+        $this->assertNull($this->gm->get_group_of($users[3]->id));
+    }
+
+    public function test_alone_selected_gives_ticked_students_own_named_groups(): void {
+        $users = $this->setup_students(4);
+        $g = $this->gm->create_group('Team A');
+        $this->gm->assign(array_map(fn($u) => $u->id, $users), $g);
+        $this->gm->alone_selected([$users[0]->id, $users[1]->id]);
+        $this->assertSame([1, 1, 2], $this->sizes());
+        $this->assertSame(fullname($users[0]), $this->gm->get_group_of($users[0]->id)->name);
+        $this->assertSame('Team A', $this->gm->get_group_of($users[2]->id)->name);
+    }
+
+    public function test_selected_actions_remove_groups_they_empty_and_ignore_strangers(): void {
+        $users = $this->setup_students(2);
+        $stranger = $this->getDataGenerator()->create_user();
+        $g = $this->gm->create_group('Team A');
+        $keep = $this->gm->create_group('Already empty');
+        $this->gm->assign([$users[0]->id, $users[1]->id], $g);
+        $this->gm->alone_selected([$users[0]->id, $users[1]->id, $stranger->id]);
+        $names = array_map(fn($grp) => $grp->name, $this->gm->get_groups());
+        $this->assertNotContains('Team A', $names);
+        $this->assertContains('Already empty', $names);
+        $this->assertNull($this->gm->get_group_of($stranger->id));
+        $this->assertCount(3, $names);
+    }
+
     public function test_random_by_size_balanced(): void {
         $this->setup_students(10);
         $this->gm->random_assign('size', 4, false, 7);

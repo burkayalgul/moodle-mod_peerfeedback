@@ -19,7 +19,7 @@
     Group management (layout A): one student list with checkboxes, groups listed below.
 
     Example context (json):
-    {"actionurl": "#", "cmid": 1, "sesskey": "x", "hasusers": true, "unassignedcount": 1, "pairurl": "#",
+    {"actionurl": "#", "cmid": 1, "sesskey": "x", "hasusers": true, "unassignedcount": 1,
      "users": [{"userid": 3, "fullname": "Ayşe Kaya", "groupname": null}],
      "groups": [{"groupid": 1, "name": "Group 1", "count": 1, "empty": false,
         "members": [{"userid": 4, "fullname": "Can Yılmaz"}]}],
@@ -32,7 +32,14 @@
             <input type="hidden" name="action" value="creategroup">
             <button type="submit" class="btn btn-outline-secondary">+ {{#str}}newgroup, mod_peerfeedback{{/str}}</button>
         </form>
-        <a href="{{pairurl}}" class="btn btn-outline-secondary">{{#str}}paireveryone, mod_peerfeedback{{/str}}</a>
+        {{#hasusers}}
+        <button type="submit" form="pf-userform" name="action" value="pair" class="btn btn-outline-secondary"
+            data-pf-label-all="{{#str}}paireveryone, mod_peerfeedback{{/str}}"
+            data-pf-label-some="{{#str}}pairselected, mod_peerfeedback{{/str}}">{{#str}}paireveryone, mod_peerfeedback{{/str}}</button>
+        <button type="submit" form="pf-userform" name="action" value="alone" class="btn btn-outline-secondary"
+            data-pf-label-all="{{#str}}aloneeveryone, mod_peerfeedback{{/str}}"
+            data-pf-label-some="{{#str}}aloneselected, mod_peerfeedback{{/str}}">{{#str}}aloneeveryone, mod_peerfeedback{{/str}}</button>
+        {{/hasusers}}
         <details class="pf-random">
             <summary class="btn btn-outline-secondary">{{#str}}random, mod_peerfeedback{{/str}}</summary>
             <form method="post" action="{{actionurl}}" class="pf-random-form card card-body mt-2">
@@ -53,16 +60,15 @@
 
     {{^hasusers}}<div class="alert alert-info">{{#str}}nostudents, mod_peerfeedback{{/str}}</div>{{/hasusers}}
     {{#hasusers}}
-    <form method="post" action="{{actionurl}}">
+    <form method="post" action="{{actionurl}}" id="pf-userform">
         <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
-        <input type="hidden" name="action" value="assign">
         <div class="pf-assignbar d-flex flex-wrap gap-2 align-items-center mb-2">
             <label for="pf-groupid" class="mb-0">{{#str}}assignselectedto, mod_peerfeedback{{/str}}</label>
             <select id="pf-groupid" name="groupid" class="form-select w-auto">
                 {{#groupoptions}}<option value="{{groupid}}">{{name}}</option>{{/groupoptions}}
                 <option value="0">{{#str}}anewgroup, mod_peerfeedback{{/str}}</option>
             </select>
-            <button type="submit" class="btn btn-primary">{{#str}}assign, mod_peerfeedback{{/str}}</button>
+            <button type="submit" name="action" value="assign" class="btn btn-primary">{{#str}}assign, mod_peerfeedback{{/str}}</button>
         </div>
         <table class="table table-sm table-hover align-middle pf-userlist">
             <thead><tr>

@@ -207,6 +207,48 @@ class group_manager {
     }
 
     /**
+     * Replace all groups with one group per student, named after that student.
+     */
+    public function alone_all(): void {
+        $this->delete_all_groups();
+        $users = $this->eligible_users();
+        foreach ($this->unassigned_userids() as $uid) {
+            $this->put($uid, $this->create_group(fullname($users[$uid])));
+        }
+        $this->cleanup_orphans();
+    }
+
+    /**
+     * Put only the given students into random pairs (one group of three if the count is odd).
+     * Other students and groups stay as they are; groups this empties are removed.
+     *
+     * @param int[] $userids
+     * @param int|null $seed
+     */
+    public function pair_selected(array $userids, ?int $seed = null): void {
+        $pool = $this->take_out($userids);
+        if (!$pool) {
+            return;
+        }
+        $this->shuffle($pool, $seed);
+        $this->fill_groups($pool, max(1, intdiv(count($pool), 2)));
+    }
+
+    /**
+     * Give each of the given students a group of their own, named after them.
+     * Other students and groups stay as they are; groups this empties are removed.
+     *
+     * @param int[] $userids
+     */
+    public function alone_selected(array $userids): void {
+        $users = $this->eligible_users();
+        foreach ($this->take_out($userids) as $uid) {
+            $this->put($uid, $this->create_group(fullname($users[$uid])));
+        }
+        $this->cleanup_orphans();
+    }
+
+    /**
      * Current membership as userid => groupid.
      *
      * @return int[]
@@ -314,6 +356,38 @@ class group_manager {
         mt_srand($seed);
         shuffle($items);
         mt_srand();
+    }
+
+    /**
+     * Remove the given eligible users from their groups and delete the groups that leaves empty.
+     *
+     * @param int[] $userids
+     * @return int[] the eligible users taken out, in eligible order
+     */
+    protected function take_out(array $userids): array {
+        global $DB;
+        $wanted = array_map('intval', $userids);
+        $pool = array_values(array_filter(
+            array_map('intval', array_keys($this->eligible_users())),
+            fn($uid) => in_array($uid, $wanted, true)
+        ));
+        if (!$pool) {
+            return [];
+        }
+        $membership = $this->membership();
+        $oldgroups = array_unique(array_intersect_key($membership, array_flip($pool)));
+        [$insql, $params] = $DB->get_in_or_equal($pool, SQL_PARAMS_NAMED);
+        $DB->delete_records_select(
+            'peerfeedback_member',
+            "peerfeedbackid = :pfid AND userid $insql",
+            $params + ['pfid' => $this->pf->id]
+        );
+        foreach ($oldgroups as $groupid) {
+            if (!$DB->record_exists('peerfeedback_member', ['groupid' => $groupid])) {
+                $DB->delete_records('peerfeedback_group', ['id' => $groupid, 'peerfeedbackid' => $this->pf->id]);
+            }
+        }
+        return $pool;
     }
 
     /**
