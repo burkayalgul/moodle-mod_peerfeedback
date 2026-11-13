@@ -33,6 +33,7 @@ $dir = optional_param('dir', 'given', PARAM_ALPHA);
 $filter = optional_param('filter', 'all', PARAM_ALPHA);
 $userid = optional_param('userid', 0, PARAM_INT);
 $groupid = optional_param('groupid', 0, PARAM_INT);
+$requesteduserid = $userid;
 $dir = in_array($dir, ['given', 'received'], true) ? $dir : 'given';
 $filter = in_array($filter, ['all', 'notreviewed', 'reviewed'], true) ? $filter : 'all';
 
@@ -66,7 +67,11 @@ $PAGE->set_heading($course->fullname);
 $PAGE->activityheader->disable();
 
 $action = optional_param('action', '', PARAM_ALPHA);
-if (in_array($action, ['saveoverall', 'showoverall', 'hideoverall'], true) && $userid && confirm_sesskey()) {
+if (in_array($action, ['saveoverall', 'showoverall', 'hideoverall'], true) && confirm_sesskey()) {
+    // Write only for the student the form was for; never fall back to another student.
+    if (!$userid || $userid !== $requesteduserid) {
+        throw new moodle_exception('err_notallowed', 'peerfeedback');
+    }
     if ($action !== 'hideoverall') {
         $tf->save_overall($userid, optional_param('overallcomment', '', PARAM_TEXT), $USER->id);
     }
