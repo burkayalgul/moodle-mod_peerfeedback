@@ -424,3 +424,8 @@
 .path-mod-peerfeedback .pf-average {
     margin-top: .5rem;
 }
+
+.path-mod-peerfeedback .pf-filter {
+    width: 22rem;
+    max-width: 100%;
+}

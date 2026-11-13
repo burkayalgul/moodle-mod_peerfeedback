@@ -20,7 +20,8 @@
 
     Example context (json):
     {"actionurl": "#", "cmid": 1, "sesskey": "x", "hasusers": true, "unassignedcount": 1,
-     "users": [{"userid": 3, "fullname": "Ayşe Kaya", "groupname": null}],
+     "users": [{"userid": 3, "fullname": "Ayşe Kaya", "identity": "ayse@example.com",
+        "search": "ayşe kaya ayse@example.com", "groupname": null}],
      "groups": [{"groupid": 1, "name": "Group 1", "count": 1, "empty": false,
         "members": [{"userid": 4, "fullname": "Can Yılmaz"}]}],
      "groupoptions": [{"groupid": 1, "name": "Group 1"}]}
@@ -60,6 +61,13 @@
 
     {{^hasusers}}<div class="alert alert-info">{{#str}}nostudents, mod_peerfeedback{{/str}}</div>{{/hasusers}}
     {{#hasusers}}
+    <div class="pf-filterbar d-flex flex-wrap gap-2 align-items-center mb-2">
+        <input type="search" class="form-control pf-filter" data-pf-filter autocomplete="off"
+            placeholder="{{#str}}searchstudents, mod_peerfeedback{{/str}}" aria-label="{{#str}}searchstudents, mod_peerfeedback{{/str}}">
+        <span class="text-muted" data-pf-selcount aria-live="polite"
+            data-pf-template="{{#str}}selectedcount, mod_peerfeedback, __N__{{/str}}"></span>
+        <button type="button" class="btn btn-link btn-sm p-0" data-pf-clearsel hidden>{{#str}}clearselection, mod_peerfeedback{{/str}}</button>
+    </div>
     <form method="post" action="{{actionurl}}" id="pf-userform">
         <input type="hidden" name="id" value="{{cmid}}"><input type="hidden" name="sesskey" value="{{sesskey}}">
         <div class="pf-assignbar d-flex flex-wrap gap-2 align-items-center mb-2">
@@ -78,14 +86,16 @@
             </tr></thead>
             <tbody>
             {{#users}}
-                <tr>
+                <tr data-pf-row data-pf-search="{{search}}">
                     <td class="pf-check"><input type="checkbox" name="userids[]" value="{{userid}}" data-pf-user
                         id="pf-u{{userid}}"></td>
-                    <td><label for="pf-u{{userid}}" class="mb-0">{{fullname}}</label></td>
+                    <td><label for="pf-u{{userid}}" class="mb-0">{{fullname}}</label>
+                        {{#identity}}<div class="small text-muted">{{identity}}</div>{{/identity}}</td>
                     <td>{{#groupname}}<span class="badge pf-badge-group">{{groupname}}</span>{{/groupname}}
                         {{^groupname}}<span class="badge pf-badge-none">{{#str}}unassigned, mod_peerfeedback{{/str}}</span>{{/groupname}}</td>
                 </tr>
             {{/users}}
+                <tr data-pf-nomatch hidden><td colspan="3" class="text-muted">{{#str}}nomatch, mod_peerfeedback{{/str}}</td></tr>
             </tbody>
         </table>
     </form>

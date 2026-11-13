@@ -17,6 +17,7 @@ The teacher writes a set of questions once. Every student then answers those que
 ### Features
 
 - **Groups that belong to the activity**, independent of course groups:
+  - an alphabetical student list with instant search by name or email (ticks are kept across searches),
   - tick names and assign them to a group,
   - distribute students randomly (by number of groups or group size),
   - pair everyone in one click (odd numbers get one group of three),

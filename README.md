@@ -4,7 +4,7 @@ Students give structured feedback to each other inside teacher-defined groups. T
 
 ## What it does
 
-- **Groups owned by the activity** (independent of course groups): tick names and assign, distribute randomly (by number of groups or group size), pair everyone in one click, or give everyone a group of their own (for self-evaluation). Pair and "alone" can also be applied to ticked students only.
+- **Groups owned by the activity** (independent of course groups): tick names and assign (alphabetical list with instant search by name or email), distribute randomly (by number of groups or group size), pair everyone in one click, or give everyone a group of their own (for self-evaluation). Pair and "alone" can also be applied to ticked students only.
 - **Survey-style questions:** single choice, multiple choice, rating scale (1–N), number, short text, long text, criteria grid and section headings. Required questions are enforced.
 - **Answering screen:** students evaluate their group members one at a time, with progress shown. Optional self-evaluation.
 - **What students can see** (per activity): nothing, only the feedback they gave, the feedback they received (giver hidden), or all feedback in their group (giver hidden).

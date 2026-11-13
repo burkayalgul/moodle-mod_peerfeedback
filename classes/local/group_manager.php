@@ -39,13 +39,15 @@ class group_manager {
     }
 
     /**
-     * Active enrolled users who can give feedback, sorted by last name.
+     * Active enrolled users who can give feedback, sorted alphabetically by displayed full name.
      *
+     * @param string[] $extrafields extra user fields to load (e.g. identity fields)
      * @return \stdClass[] userid => user
      */
-    public function eligible_users(): array {
-        $fields = 'u.id, ' . implode(', ', array_map(fn($f) => 'u.' . $f, \core_user\fields::get_name_fields()));
-        return get_enrolled_users(
+    public function eligible_users(array $extrafields = []): array {
+        $names = array_merge(\core_user\fields::get_name_fields(), $extrafields);
+        $fields = 'u.id, ' . implode(', ', array_map(fn($f) => 'u.' . $f, array_unique($names)));
+        $users = get_enrolled_users(
             $this->context,
             'mod/peerfeedback:submit',
             0,
@@ -55,6 +57,14 @@ class group_manager {
             0,
             true
         );
+        // Sort by the name as people see it, so the list reads alphabetically whatever the name format.
+        $display = array_map('fullname', $users);
+        \core_collator::asort($display);
+        $sorted = [];
+        foreach (array_keys($display) as $id) {
+            $sorted[$id] = $users[$id];
+        }
+        return $sorted;
     }
 
     /**

@@ -6,11 +6,11 @@ Feature: Teachers put every student in a group of their own
 
   Background:
     Given the following "users" exist:
-      | username | firstname | lastname |
-      | t1       | Teacher   | One      |
-      | s1       | Ayse      | Kaya     |
-      | s2       | Can       | Yilmaz   |
-      | s3       | Deniz     | Aydin    |
+      | username | firstname | lastname | email            |
+      | t1       | Teacher   | One      | t1@example.com   |
+      | s1       | Ayse      | Kaya     | ayse@example.com |
+      | s2       | Can       | Yilmaz   | cy@example.com   |
+      | s3       | Deniz     | Aydin    | da@example.com   |
     And the following "courses" exist:
       | fullname | shortname |
       | Course 1 | C1        |
@@ -51,3 +51,26 @@ Feature: Teachers put every student in a group of their own
     And "//section[contains(@class, 'pf-groupbox')]//input[@value='Ayse Kaya']" "xpath_element" should exist
     And "//section[contains(@class, 'pf-groupbox')]//input[@value='Team A']" "xpath_element" should exist
     And "//section[contains(@class, 'pf-groupbox')]//input[@value='Can Yilmaz']" "xpath_element" should not exist
+
+  @javascript
+  Scenario: Ticks survive several searches and the list is alphabetical
+    Given I am on the "Self feedback" "peerfeedback activity" page logged in as "t1"
+    And I follow "Groups"
+    Then "Ayse Kaya" "table_row" should appear before "Can Yilmaz" "table_row"
+    And "Can Yilmaz" "table_row" should appear before "Deniz Aydin" "table_row"
+    And I should see "cy@example.com"
+    When I set the field "Search by name or email" to "ayse"
+    Then "Ayse Kaya" "table_row" should be visible
+    And "Can Yilmaz" "table_row" should not be visible
+    And I set the field "Ayse Kaya" to "1"
+    And I set the field "Search by name or email" to "da@"
+    And "Ayse Kaya" "table_row" should not be visible
+    And I set the field "Deniz Aydin" to "1"
+    And I should see "2 selected"
+    And I set the field "Search by name or email" to "nobody"
+    And I should see "No students match your search."
+    And I set the field "Search by name or email" to ""
+    And I set the field "Assign selected to" to "A new group"
+    And I press "Assign"
+    And "//section[contains(@class, 'pf-groupbox')][.//*[contains(., 'Ayse Kaya')] and .//*[contains(., 'Deniz Aydin')]]" "xpath_element" should exist
+    And "Can Yilmaz" "table_row" should exist

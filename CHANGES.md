@@ -4,6 +4,7 @@
 
 - The first line of a question is its title; further lines are shown beneath it with their line breaks.
 - The list of people to give feedback to wraps onto new lines instead of scrolling sideways.
+- The student list on the groups page is alphabetical, shows each student's email (when the site shows it to teachers), and has a search box for name or email. Ticks are kept across searches, so you can pick students from several searches and assign them at once.
 - New "Everyone alone" button: each student gets a group of their own, named after them.
 - "Pair" and "Alone" apply to the ticked students only when some are ticked; other groups stay as they are.
 - The "Random…" panel opens over the page instead of pushing the toolbar buttons apart.

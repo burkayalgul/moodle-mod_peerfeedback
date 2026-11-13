@@ -190,23 +190,87 @@ if ($action !== '') {
     redirect($baseurl);
 }
 
-$PAGE->requires->js_amd_inline("
-    document.querySelectorAll('[data-pf-selectall]').forEach(function(all) {
-        all.addEventListener('change', function() {
-            document.querySelectorAll('[data-pf-user]').forEach(function(box) { box.checked = all.checked; });
-            relabel();
+$PAGE->requires->js_amd_inline(<<<'JS'
+    // Student list: filter by name or email without reloading; ticks survive any number of searches.
+    var norm = function(text) {
+        return (text || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i');
+    };
+    var rows = Array.prototype.slice.call(document.querySelectorAll('[data-pf-row]'));
+    var filter = document.querySelector('[data-pf-filter]');
+    var nomatch = document.querySelector('[data-pf-nomatch]');
+    var count = document.querySelector('[data-pf-selcount]');
+    var clear = document.querySelector('[data-pf-clearsel]');
+    var all = document.querySelector('[data-pf-selectall]');
+    var box = function(row) {
+        return row.querySelector('[data-pf-user]');
+    };
+    var visible = function() {
+        return rows.filter(function(row) {
+            return !row.hidden;
         });
-    });
-    // Pair and Alone act on the ticked students when there are any, otherwise on everyone.
-    function relabel() {
-        var some = document.querySelector('[data-pf-user]:checked') !== null;
+    };
+    var refresh = function() {
+        var checked = document.querySelectorAll('[data-pf-user]:checked').length;
+        // Pair and Alone act on the ticked students when there are any, otherwise on everyone.
         document.querySelectorAll('[data-pf-label-all]').forEach(function(btn) {
-            btn.textContent = some ? btn.dataset.pfLabelSome : btn.dataset.pfLabelAll;
+            btn.textContent = checked ? btn.dataset.pfLabelSome : btn.dataset.pfLabelAll;
+        });
+        if (count) {
+            count.textContent = checked ? count.dataset.pfTemplate.replace('__N__', checked) : '';
+        }
+        if (clear) {
+            clear.hidden = !checked;
+        }
+        if (all) {
+            var shown = visible();
+            all.checked = shown.length > 0 && shown.every(function(row) {
+                return box(row).checked;
+            });
+        }
+    };
+    if (filter) {
+        filter.addEventListener('input', function() {
+            var terms = norm(filter.value).split(/\s+/).filter(Boolean);
+            rows.forEach(function(row) {
+                var text = norm(row.dataset.pfSearch);
+                row.hidden = !terms.every(function(term) {
+                    return text.indexOf(term) !== -1;
+                });
+            });
+            if (nomatch) {
+                nomatch.hidden = visible().length > 0;
+            }
+            refresh();
+        });
+        filter.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
         });
     }
-    document.querySelectorAll('[data-pf-user]').forEach(function(box) { box.addEventListener('change', relabel); });
-    relabel();
-");
+    if (all) {
+        // Select all ticks only the students the current search shows.
+        all.addEventListener('change', function() {
+            visible().forEach(function(row) {
+                box(row).checked = all.checked;
+            });
+            refresh();
+        });
+    }
+    if (clear) {
+        clear.addEventListener('click', function() {
+            rows.forEach(function(row) {
+                box(row).checked = false;
+            });
+            refresh();
+        });
+    }
+    rows.forEach(function(row) {
+        box(row).addEventListener('change', refresh);
+    });
+    refresh();
+    JS
+);
 
 echo $OUTPUT->header();
 echo $renderer->tabs($cm, 'groups');

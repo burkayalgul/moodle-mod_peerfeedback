@@ -147,6 +147,21 @@ final class group_manager_test extends \advanced_testcase {
         $this->assertCount(3, $names);
     }
 
+    public function test_eligible_users_sorted_by_displayed_name(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        foreach ([['Zeynep', 'Arslan'], ['ayşe', 'Kaya'], ['Can', 'Yılmaz'], ['Ayla', 'Demir']] as [$first, $last]) {
+            $u = $this->getDataGenerator()->create_user(['firstname' => $first, 'lastname' => $last]);
+            $this->getDataGenerator()->enrol_user($u->id, $course->id, 'student');
+        }
+        $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id]);
+        $pf = $DB->get_record('peerfeedback', ['id' => $mod->id]);
+        $gm = new group_manager($pf, \context_module::instance($mod->cmid));
+        $names = array_values(array_map('fullname', $gm->eligible_users()));
+        $this->assertSame(['Ayla Demir', 'ayşe Kaya', 'Can Yılmaz', 'Zeynep Arslan'], $names);
+    }
+
     public function test_random_by_size_balanced(): void {
         $this->setup_students(10);
         $this->gm->random_assign('size', 4, false, 7);

@@ -120,7 +120,9 @@ class renderer extends \plugin_renderer_base {
      * @return array
      */
     public function groups_context(\cm_info $cm, \mod_peerfeedback\local\group_manager $gm): array {
-        $users = $gm->eligible_users();
+        // Identity fields (e.g. email) only as far as this viewer may see them; used to tell students apart and to search.
+        $identityfields = \core_user\fields::for_identity($cm->context, false)->get_required_fields();
+        $users = $gm->eligible_users($identityfields);
         $groups = $gm->get_groups();
         $groupof = [];
         foreach ($groups as $g) {
@@ -131,15 +133,23 @@ class renderer extends \plugin_renderer_base {
         $rows = [];
         foreach ($users as $u) {
             $g = $groupof[$u->id] ?? null;
-            $rows[] = ['userid' => $u->id, 'fullname' => fullname($u), 'groupname' => $g ? format_string($g->name) : null];
+            $identity = array_values(array_filter(array_map(fn($f) => trim((string)($u->$f ?? '')), $identityfields), 'strlen'));
+            $rows[] = [
+                'userid' => $u->id,
+                'fullname' => fullname($u),
+                'identity' => implode(', ', $identity),
+                'search' => \core_text::strtolower(trim(fullname($u) . ' ' . implode(' ', $identity))),
+                'groupname' => $g ? format_string($g->name) : null,
+            ];
         }
         $boxes = [];
         $options = [];
         foreach ($groups as $g) {
             $members = [];
-            foreach ($g->members as $uid) {
-                if (isset($users[$uid])) {
-                    $members[] = ['userid' => $uid, 'fullname' => fullname($users[$uid])];
+            // Walk the alphabetical user list so members show in name order.
+            foreach ($users as $uid => $u) {
+                if (in_array($uid, $g->members)) {
+                    $members[] = ['userid' => $uid, 'fullname' => fullname($u)];
                 }
             }
             $boxes[] = ['groupid' => $g->id, 'name' => format_string($g->name), 'count' => count($members),
