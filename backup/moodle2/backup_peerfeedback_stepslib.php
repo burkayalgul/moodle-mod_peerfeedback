@@ -45,6 +45,8 @@ class backup_peerfeedback_activity_structure_step extends backup_activity_struct
             'timereviewed']);
         $answers = new backup_nested_element('answers');
         $answer = new backup_nested_element('answer', ['id'], ['questionid', 'value']);
+        $overalls = new backup_nested_element('overalls');
+        $overall = new backup_nested_element('overall', ['id'], ['userid', 'comment', 'shown', 'teacherid', 'timemodified']);
 
         $pf->add_child($questions);
         $questions->add_child($question);
@@ -56,6 +58,8 @@ class backup_peerfeedback_activity_structure_step extends backup_activity_struct
         $responses->add_child($response);
         $response->add_child($answers);
         $answers->add_child($answer);
+        $pf->add_child($overalls);
+        $overalls->add_child($overall);
 
         $pf->set_source_table('peerfeedback', ['id' => backup::VAR_ACTIVITYID]);
         $question->set_source_table('peerfeedback_question', ['peerfeedbackid' => backup::VAR_PARENTID], 'sortorder ASC');
@@ -64,12 +68,15 @@ class backup_peerfeedback_activity_structure_step extends backup_activity_struct
             $member->set_source_table('peerfeedback_member', ['groupid' => backup::VAR_PARENTID]);
             $response->set_source_table('peerfeedback_response', ['peerfeedbackid' => backup::VAR_PARENTID], 'id ASC');
             $answer->set_source_table('peerfeedback_answer', ['responseid' => backup::VAR_PARENTID]);
+            $overall->set_source_table('peerfeedback_overall', ['peerfeedbackid' => backup::VAR_PARENTID], 'id ASC');
         }
 
         $member->annotate_ids('user', 'userid');
         $response->annotate_ids('user', 'giverid');
         $response->annotate_ids('user', 'receiverid');
         $response->annotate_ids('user', 'reviewerid');
+        $overall->annotate_ids('user', 'userid');
+        $overall->annotate_ids('user', 'teacherid');
         $pf->annotate_files('mod_peerfeedback', 'intro', null);
 
         return $this->prepare_activity_structure($pf);

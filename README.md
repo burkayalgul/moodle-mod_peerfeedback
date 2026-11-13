@@ -8,7 +8,8 @@ Students give structured feedback to each other inside teacher-defined groups. T
 - **Survey-style questions:** single choice, multiple choice, rating scale (1–N), number, short text, long text, criteria grid and section headings. Required questions are enforced.
 - **Answering screen:** students evaluate their group members one at a time, with progress shown. Optional self-evaluation.
 - **What students can see** (per activity): nothing, only the feedback they gave, the feedback they received (giver hidden), or all feedback in their group (giver hidden).
-- **Teacher review:** "Feedback given by" and "Feedback received by" views, a "not reviewed" filter, an optional grade and comment on each feedback, and "Mark as reviewed" (locks it) / "Reopen".
+- **Teacher review:** students listed group by group with a group filter, "Feedback given by" and "Feedback received by" views, a "not reviewed" filter, an optional grade and comment on each feedback, and "Mark as reviewed" (locks it) / "Reopen".
+- **Teacher feedback for students:** an overall comment per student that the teacher chooses when to show, and a "Teacher feedback" list on the student's page with every comment and grade on the feedback they wrote. Students get a Moodle notification when new teacher feedback appears.
 - **Gradebook (optional):** a student's grade is the average of the grades their feedback received.
 - **Export** by giver or by receiver (Excel, CSV, ODS and the other Moodle formats), including teacher grades and comments.
 - Open and due dates, activity completion, backup and restore, Privacy API.

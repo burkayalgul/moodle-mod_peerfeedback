@@ -60,6 +60,44 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $rm->review((int)$rm->get_response($this->u['a']->id, $this->u['b']->id)->id, 90, 'Fine', true, $this->u['t']->id);
     }
 
+    /**
+     * Teacher t2 (no other data) writes an overall comment to outsider o (no other data).
+     *
+     * @return \stdClass teacher t2
+     */
+    private function add_overall(): \stdClass {
+        $t2 = $this->getDataGenerator()->create_and_enrol(get_course($this->pf->course), 'editingteacher');
+        $tf = new \mod_peerfeedback\local\teacher_feedback($this->pf, $this->context);
+        $tf->save_overall($this->u['o']->id, 'Overall note', $t2->id);
+        return $t2;
+    }
+
+    public function test_overall_comment_counts_for_student_and_teacher(): void {
+        $this->make();
+        $t2 = $this->add_overall();
+        foreach ([$this->u['o'], $t2] as $user) {
+            $this->assertEquals([$this->context->id], provider::get_contexts_for_userid($user->id)->get_contextids());
+        }
+        $list = new userlist($this->context, 'mod_peerfeedback');
+        provider::get_users_in_context($list);
+        $this->assertContainsEquals($this->u['o']->id, $list->get_userids());
+        $this->assertContainsEquals($t2->id, $list->get_userids());
+    }
+
+    public function test_overall_comment_exported_and_deleted(): void {
+        global $DB;
+        $this->make();
+        $this->add_overall();
+        provider::export_user_data(new approved_contextlist($this->u['o'], 'mod_peerfeedback', [$this->context->id]));
+        $data = writer::with_context($this->context)->get_data([get_string('privacy:overall', 'mod_peerfeedback')]);
+        $this->assertSame('Overall note', $data->comment);
+        provider::delete_data_for_user(new approved_contextlist($this->u['o'], 'mod_peerfeedback', [$this->context->id]));
+        $this->assertEquals(0, $DB->count_records('peerfeedback_overall'));
+        $this->add_overall();
+        provider::delete_data_for_all_users_in_context($this->context);
+        $this->assertEquals(0, $DB->count_records('peerfeedback_overall'));
+    }
+
     public function test_get_contexts_for_userid(): void {
         $this->make();
         foreach (['a', 'b', 'c', 't'] as $k) {

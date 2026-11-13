@@ -270,6 +270,7 @@ class response_manager {
         $r->teachercomment = ($comment === null || trim($comment) === '') ? null : trim($comment);
         $r->reviewerid = $reviewerid;
         $r->editedaftergrade = 0;
+        $newlyreviewed = $markreviewed && (int)$r->status !== constants::STATUS_REVIEWED;
         if ($markreviewed) {
             $r->status = constants::STATUS_REVIEWED;
             $r->timereviewed = time();
@@ -281,6 +282,10 @@ class response_manager {
             ])->trigger();
         }
         peerfeedback_update_grades($this->pf, (int)$r->giverid);
+        $tf = new teacher_feedback($this->pf, $this->context);
+        if ($newlyreviewed && $tf->has_feedback_for_giver($r)) {
+            $tf->notify((int)$r->giverid, $reviewerid);
+        }
     }
 
     /**

@@ -429,3 +429,35 @@
     width: 22rem;
     max-width: 100%;
 }
+
+.path-mod-peerfeedback .pf-review-groupname {
+    margin: .25rem 0 .35rem;
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: #6a737b;
+}
+
+.path-mod-peerfeedback .pf-overall {
+    margin-top: .5rem;
+}
+
+.path-mod-peerfeedback .pf-tf-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .25rem;
+}
+
+.path-mod-peerfeedback .pf-tf-text p:last-child {
+    margin-bottom: 0;
+}
+
+.path-mod-peerfeedback .pf-tf-answers summary {
+    margin-top: .35rem;
+    color: #0f6cbf;
+    cursor: pointer;
+}

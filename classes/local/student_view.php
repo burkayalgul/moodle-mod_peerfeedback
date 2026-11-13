@@ -46,7 +46,8 @@ class student_view {
      * Visible feedback items for a student.
      *
      * @param int $userid
-     * @return array list of ['receivername', 'givername', 'answers' => [['question', 'value']], 'grade', 'teachercomment']
+     * @return array list of ['receivername', 'givername', 'answers' => [['question', 'value']]]; the teacher's
+     *         comments and grades are shown separately, see teacher_feedback
      */
     public function for_user(int $userid): array {
         global $DB;
@@ -94,8 +95,6 @@ class student_view {
 
         $items = [];
         foreach ($responses as $r) {
-            $own = (int)$r->giverid === $userid;
-            $showreview = $own && $this->pf->grading && (int)$r->status === constants::STATUS_REVIEWED;
             $list = [];
             foreach ($questions as $q) {
                 $type = base::get($q->qtype);
@@ -108,8 +107,6 @@ class student_view {
                 'receivername' => $mode === constants::VIS_RECEIVED ? null : fullname($users[$r->receiverid]),
                 'givername' => $mode === constants::VIS_GIVEN ? fullname($users[$r->giverid]) : null,
                 'answers' => $list,
-                'grade' => $showreview && $r->grade !== null ? (float)$r->grade : null,
-                'teachercomment' => $showreview ? $r->teachercomment : null,
             ];
         }
         return $items;

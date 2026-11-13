@@ -20,7 +20,7 @@
 
     Example context (json):
     {"heading": "Feedback about you", "hasitems": true, "items": [{"title": "Feedback 1",
-     "answers": [{"question": "Communication", "value": "4 / 5"}], "grade": null, "teachercomment": null}]}
+     "answers": [{"question": "Communication", "value": "4 / 5"}]}]}
 }}
 <section class="pf-results">
     <h3 class="h5 mt-4">{{heading}}</h3>
@@ -31,8 +31,6 @@
         <dl class="mb-0">
             {{#answers}}<dt class="fw-normal text-muted small">{{question}}</dt><dd class="pf-pre">{{value}}</dd>{{/answers}}
         </dl>
-        {{#grade}}<div class="mt-1">{{#str}}teachergrade, mod_peerfeedback{{/str}}: <strong>{{grade}}</strong></div>{{/grade}}
-        {{#teachercomment}}<div>{{#str}}teachercomment, mod_peerfeedback{{/str}}: {{teachercomment}}</div>{{/teachercomment}}
     </div>
     {{/items}}
 </section>

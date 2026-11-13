@@ -112,23 +112,15 @@ final class student_view_test extends \advanced_testcase {
         $this->assertStringNotContainsString('Laste', $json);
     }
 
-    public function test_teacher_grade_only_on_own_given(): void {
+    public function test_results_never_carry_teacher_review(): void {
         global $DB;
-        $this->make(constants::VIS_ALL, 1);
+        $this->make(constants::VIS_GIVEN, 1);
         $DB->set_field('peerfeedback_response', 'grade', 77);
         $DB->set_field('peerfeedback_response', 'teachercomment', 'Nice');
         $DB->set_field('peerfeedback_response', 'status', constants::STATUS_REVIEWED);
-        $this->pf->visibility = constants::VIS_GIVEN;
-        $given = (new student_view($this->pf))->for_user($this->u['a']->id);
-        $this->assertEquals(77, $given[0]['grade']);
-        $this->assertSame('Nice', $given[0]['teachercomment']);
-        $this->pf->visibility = constants::VIS_ALL;
-        $graded = array_filter((new student_view($this->pf))->for_user($this->u['a']->id), fn($i) => $i['grade'] !== null);
-        $this->assertCount(2, $graded);
-        $this->pf->visibility = constants::VIS_RECEIVED;
         foreach ((new student_view($this->pf))->for_user($this->u['a']->id) as $item) {
-            $this->assertNull($item['grade']);
-            $this->assertNull($item['teachercomment']);
+            $this->assertArrayNotHasKey('grade', $item);
+            $this->assertArrayNotHasKey('teachercomment', $item);
         }
     }
 

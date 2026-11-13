@@ -26,11 +26,13 @@ require_once(__DIR__ . '/../../config.php');
 
 use mod_peerfeedback\local\group_manager;
 use mod_peerfeedback\local\response_manager;
+use mod_peerfeedback\local\teacher_feedback;
 
 $id = required_param('id', PARAM_INT);
 $dir = optional_param('dir', 'given', PARAM_ALPHA);
 $filter = optional_param('filter', 'all', PARAM_ALPHA);
 $userid = optional_param('userid', 0, PARAM_INT);
+$groupid = optional_param('groupid', 0, PARAM_INT);
 $dir = in_array($dir, ['given', 'received'], true) ? $dir : 'given';
 $filter = in_array($filter, ['all', 'notreviewed', 'reviewed'], true) ? $filter : 'all';
 
@@ -42,11 +44,21 @@ require_capability('mod/peerfeedback:review', $context);
 
 $gm = new group_manager($pf, $context);
 $rm = new response_manager($pf, $context);
-$users = $gm->eligible_users();
-if (!isset($users[$userid]) && $users) {
-    $userid = (int)array_key_first($users);
+$tf = new teacher_feedback($pf, $context);
+$groups = $gm->get_groups();
+if (!isset($groups[$groupid])) {
+    $groupid = 0;
 }
-$params = ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'userid' => $userid];
+// Only students who are in a group, listed group by group.
+$sections = $gm->grouped_users($groupid);
+$users = [];
+foreach ($sections as $section) {
+    $users += $section['users'];
+}
+if (!isset($users[$userid])) {
+    $userid = $users ? (int)array_key_first($users) : 0;
+}
+$params = ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'groupid' => $groupid, 'userid' => $userid];
 $pageurl = new moodle_url('/mod/peerfeedback/review.php', $params);
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($pf->name) . ': ' . get_string('review', 'peerfeedback'));
@@ -54,6 +66,16 @@ $PAGE->set_heading($course->fullname);
 $PAGE->activityheader->disable();
 
 $action = optional_param('action', '', PARAM_ALPHA);
+if (in_array($action, ['saveoverall', 'showoverall', 'hideoverall'], true) && $userid && confirm_sesskey()) {
+    if ($action !== 'hideoverall') {
+        $tf->save_overall($userid, optional_param('overallcomment', '', PARAM_TEXT), $USER->id);
+    }
+    if ($action !== 'saveoverall') {
+        $tf->set_overall_shown($userid, $action === 'showoverall', $USER->id);
+    }
+    \core\notification::success(get_string('overallsaved', 'peerfeedback'));
+    redirect(new moodle_url($pageurl, [], 'pf-overall'));
+}
 if ($action !== '' && confirm_sesskey()) {
     $responseid = required_param('responseid', PARAM_INT);
     if ($action === 'reopen') {
@@ -86,7 +108,7 @@ echo $OUTPUT->header();
 echo $renderer->tabs($cm, 'review');
 echo $renderer->render_from_template(
     'mod_peerfeedback/review',
-    $renderer->review_context($cm, $pf, $rm, $users, $userid, $dir, $filter)
+    $renderer->review_context($cm, $pf, $rm, $tf, $groups, $sections, $groupid, $userid, $dir, $filter)
 );
 echo $renderer->branding_footer();
 echo $OUTPUT->footer();

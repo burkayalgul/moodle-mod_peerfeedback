@@ -45,5 +45,26 @@ function xmldb_peerfeedback_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026111201, 'peerfeedback');
     }
 
+    if ($oldversion < 2026111303) {
+        // The teacher's overall comment to each student.
+        $table = new xmldb_table('peerfeedback_overall');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('peerfeedbackid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('comment', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('shown', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('teacherid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('peerfeedbackid', XMLDB_KEY_FOREIGN, ['peerfeedbackid'], 'peerfeedback', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('teacherid', XMLDB_KEY_FOREIGN, ['teacherid'], 'user', ['id']);
+        $table->add_index('pfuser', XMLDB_INDEX_UNIQUE, ['peerfeedbackid', 'userid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        upgrade_mod_savepoint(true, 2026111303, 'peerfeedback');
+    }
+
     return true;
 }

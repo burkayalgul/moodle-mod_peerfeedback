@@ -41,6 +41,7 @@ class restore_peerfeedback_activity_structure_step extends restore_activity_stru
                 'peerfeedback_answer',
                 '/activity/peerfeedback/responses/response/answers/answer'
             );
+            $paths[] = new restore_path_element('peerfeedback_overall', '/activity/peerfeedback/overalls/overall');
         }
         return $this->prepare_activity_structure($paths);
     }
@@ -121,6 +122,23 @@ class restore_peerfeedback_activity_structure_step extends restore_activity_stru
         $data->groupid = $data->groupid ? (int)$this->get_mappingid('peerfeedback_group', $data->groupid) : 0;
         $data->reviewerid = $data->reviewerid ? ($this->get_mappingid('user', $data->reviewerid) ?: null) : null;
         $this->set_mapping('peerfeedback_response', $oldid, $DB->insert_record('peerfeedback_response', $data));
+    }
+
+    /**
+     * Restore a teacher's overall comment; skipped when the student is not restored.
+     *
+     * @param array $data
+     */
+    protected function process_peerfeedback_overall($data) {
+        global $DB;
+        $data = (object)$data;
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        if (!$data->userid) {
+            return;
+        }
+        $data->peerfeedbackid = $this->get_new_parentid('peerfeedback');
+        $data->teacherid = $data->teacherid ? ($this->get_mappingid('user', $data->teacherid) ?: null) : null;
+        $DB->insert_record('peerfeedback_overall', $data);
     }
 
     /**

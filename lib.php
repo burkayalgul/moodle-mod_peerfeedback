@@ -109,6 +109,7 @@ function peerfeedback_delete_instance($id) {
         $DB->delete_records_list('peerfeedback_answer', 'responseid', $responseids);
     }
     $DB->delete_records('peerfeedback_response', ['peerfeedbackid' => $id]);
+    $DB->delete_records('peerfeedback_overall', ['peerfeedbackid' => $id]);
     $DB->delete_records('peerfeedback_member', ['peerfeedbackid' => $id]);
     $DB->delete_records('peerfeedback_group', ['peerfeedbackid' => $id]);
     $DB->delete_records('peerfeedback_question', ['peerfeedbackid' => $id]);

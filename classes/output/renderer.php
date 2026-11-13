@@ -268,9 +268,10 @@ class renderer extends \plugin_renderer_base {
         $pos = array_search($peerid, $peerids, true);
         $statuskey = !$response ? 'statusnotstarted' : ['statussaved', 'statussubmitted', 'statusreviewed'][(int)$response->status];
         $review = null;
-        if ($pf->grading && $response && (int)$response->status === 2) {
+        if ($response && (int)$response->status === 2 && ($response->teachercomment !== null || $pf->grading)) {
             $review = [
-                'grade' => $response->grade === null ? null : format_float($response->grade, 2, true, true) . ' / ' . $pf->grade,
+                'grade' => !$pf->grading || $response->grade === null ? null
+                    : format_float($response->grade, 2, true, true) . ' / ' . $pf->grade,
                 'comment' => $response->teachercomment === null ? null : format_text($response->teachercomment, FORMAT_PLAIN),
             ];
         }
@@ -370,12 +371,42 @@ class renderer extends \plugin_renderer_base {
             $items[] = [
                 'title' => $title,
                 'answers' => $item['answers'],
-                'grade' => $item['grade'] === null ? null : format_float($item['grade'], 2, true, true) . ' / ' . $pf->grade,
-                'teachercomment' => $item['teachercomment'],
             ];
         }
         $heading = ['', 'resultsgiven', 'resultsreceived', 'resultsall'][$mode];
         return ['heading' => get_string($heading, 'peerfeedback'), 'items' => $items, 'hasitems' => !empty($items)];
+    }
+
+    /**
+     * The student's "Teacher feedback" section: the overall comment and each commented or graded feedback they wrote.
+     *
+     * @param \stdClass $pf
+     * @param \context_module $context
+     * @param int $userid
+     * @return array|null null when there is nothing to show
+     */
+    public function teacher_feedback_context(\stdClass $pf, \context_module $context, int $userid): ?array {
+        $data = (new \mod_peerfeedback\local\teacher_feedback($pf, $context))->for_student($userid);
+        if ($data['overall'] === null && !$data['items']) {
+            return null;
+        }
+        $items = [];
+        foreach ($data['items'] as $item) {
+            $items[] = [
+                'id' => $item['responseid'],
+                'title' => $item['self'] ? get_string('yourselfevaluation', 'peerfeedback')
+                    : get_string('feedbackyouwroteabout', 'peerfeedback', $item['receivername']),
+                'comment' => $item['comment'] === null ? null : format_text($item['comment'], FORMAT_PLAIN),
+                'grade' => $item['grade'] === null ? null : format_float($item['grade'], 2, true, true) . ' / ' . $pf->grade,
+                'answers' => $item['answers'],
+            ];
+        }
+        return [
+            'overall' => $data['overall'],
+            'overallhtml' => $data['overall'] === null ? null : format_text($data['overall'], FORMAT_PLAIN),
+            'items' => $items,
+            'hasitems' => !empty($items),
+        ];
     }
 
     /**
@@ -384,7 +415,10 @@ class renderer extends \plugin_renderer_base {
      * @param \cm_info $cm
      * @param \stdClass $pf
      * @param \mod_peerfeedback\local\response_manager $rm
-     * @param \stdClass[] $users eligible students
+     * @param \mod_peerfeedback\local\teacher_feedback $tf
+     * @param \stdClass[] $groups all groups of the activity, for the group filter
+     * @param array $sections grouped students as returned by group_manager::grouped_users()
+     * @param int $groupid selected group, 0 for all
      * @param int $userid selected student
      * @param string $dir given|received
      * @param string $filter all|notreviewed|reviewed
@@ -394,7 +428,10 @@ class renderer extends \plugin_renderer_base {
         \cm_info $cm,
         \stdClass $pf,
         \mod_peerfeedback\local\response_manager $rm,
-        array $users,
+        \mod_peerfeedback\local\teacher_feedback $tf,
+        array $groups,
+        array $sections,
+        int $groupid,
         int $userid,
         string $dir,
         string $filter
@@ -402,7 +439,7 @@ class renderer extends \plugin_renderer_base {
         global $DB;
         $url = fn(array $p) => (new \moodle_url(
             '/mod/peerfeedback/review.php',
-            $p + ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'userid' => $userid]
+            $p + ['id' => $cm->id, 'dir' => $dir, 'filter' => $filter, 'groupid' => $groupid, 'userid' => $userid]
         ))->out(false);
         $field = $dir === 'received' ? 'receiverid' : 'giverid';
         $counts = [];
@@ -412,16 +449,36 @@ class renderer extends \plugin_renderer_base {
         foreach ($DB->get_records_sql($sql, [$pf->id]) as $row) {
             $counts[$row->uid] = $row;
         }
-        $list = [];
-        foreach ($users as $u) {
-            $c = $counts[$u->id] ?? null;
-            $submitted = $c ? (int)$c->submitted : 0;
-            $list[] = [
-                'fullname' => fullname($u),
-                'url' => $url(['userid' => $u->id]),
-                'active' => (int)$u->id === $userid,
-                'pill' => $submitted ? ((int)$c->reviewed . '/' . $submitted) : get_string('notsubmitted', 'peerfeedback'),
-                'complete' => $submitted && (int)$c->reviewed === $submitted,
+        $users = [];
+        $listsections = [];
+        foreach ($sections as $section) {
+            $list = [];
+            foreach ($section['users'] as $u) {
+                $users[$u->id] = $u;
+                $c = $counts[$u->id] ?? null;
+                $submitted = $c ? (int)$c->submitted : 0;
+                $list[] = [
+                    'fullname' => fullname($u),
+                    'url' => $url(['userid' => $u->id]),
+                    'active' => (int)$u->id === $userid,
+                    'pill' => $submitted ? ((int)$c->reviewed . '/' . $submitted) : get_string('notsubmitted', 'peerfeedback'),
+                    'complete' => $submitted && (int)$c->reviewed === $submitted,
+                ];
+            }
+            $listsections[] = ['name' => format_string($section['name']), 'users' => $list];
+        }
+        $groupoptions = [['value' => 0, 'label' => get_string('allgroups', 'peerfeedback'), 'selected' => !$groupid]];
+        foreach ($groups as $g) {
+            $groupoptions[] = ['value' => $g->id, 'label' => format_string($g->name), 'selected' => (int)$g->id === $groupid];
+        }
+        $overall = null;
+        if ($dir === 'given' && isset($users[$userid])) {
+            $o = $tf->get_overall($userid);
+            $overall = [
+                'heading' => get_string('overallcommentfor', 'peerfeedback', fullname($users[$userid])),
+                'comment' => $o->comment ?? '',
+                'shown' => $o && $o->shown,
+                'saved' => (bool)$o,
             ];
         }
         $cards = [];
@@ -453,7 +510,9 @@ class renderer extends \plugin_renderer_base {
         return [
             'cmid' => $cm->id, 'sesskey' => sesskey(), 'dir' => $dir, 'userid' => $userid, 'filter' => $filter,
             'actionurl' => (new \moodle_url('/mod/peerfeedback/review.php'))->out(false),
-            'views' => $views, 'filters' => $filters, 'users' => $list, 'hasusers' => !empty($list),
+            'views' => $views, 'filters' => $filters, 'sections' => $listsections, 'hasusers' => !empty($users),
+            'groupoptions' => $groupoptions, 'groupid' => $groupid, 'hasgroups' => !empty($groups),
+            'overall' => $overall,
             'cards' => $cards, 'hascards' => !empty($cards),
             'grading' => (bool)$pf->grading, 'maxgrade' => (int)$pf->grade,
             'average' => $average === null ? null : format_float($average, 2, true, true),

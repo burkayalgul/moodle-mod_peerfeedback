@@ -51,6 +51,9 @@ final class backup_restore_test extends \advanced_testcase {
         $rm = new response_manager($pf, \context_module::instance($mod->cmid));
         $rm->save($a->id, $b->id, [$q->id => ['0' => '3', '1' => '4']], true);
         $rm->review((int)$rm->get_response($a->id, $b->id)->id, 75, 'ok', true, $USER->id);
+        $tf = new \mod_peerfeedback\local\teacher_feedback($pf, \context_module::instance($mod->cmid));
+        $tf->save_overall($a->id, 'Well done overall', $USER->id);
+        $tf->set_overall_shown($a->id, true, $USER->id);
 
         $bc = new \backup_controller(
             \backup::TYPE_1COURSE,
@@ -102,6 +105,9 @@ final class backup_restore_test extends \advanced_testcase {
         $this->assertSame('{"0":3,"1":4}', $answer->value);
         $this->assertEquals('Rate', $DB->get_field('peerfeedback_question', 'questiontext', ['id' => $answer->questionid]));
         $this->assertEquals($new, $DB->get_field('peerfeedback_question', 'peerfeedbackid', ['id' => $answer->questionid]));
+        $overall = $DB->get_record('peerfeedback_overall', ['peerfeedbackid' => $new], '*', MUST_EXIST);
+        $this->assertSame('Well done overall', $overall->comment);
+        $this->assertEquals(1, $overall->shown);
     }
 
     public function test_backup_restore_without_userdata_keeps_questions_and_groups_only(): void {
@@ -111,5 +117,6 @@ final class backup_restore_test extends \advanced_testcase {
         $this->assertEquals(1, $DB->count_records('peerfeedback_group', ['peerfeedbackid' => $new]));
         $this->assertEquals(0, $DB->count_records('peerfeedback_member', ['peerfeedbackid' => $new]));
         $this->assertEquals(0, $DB->count_records('peerfeedback_response', ['peerfeedbackid' => $new]));
+        $this->assertEquals(0, $DB->count_records('peerfeedback_overall', ['peerfeedbackid' => $new]));
     }
 }

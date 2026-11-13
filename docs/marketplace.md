@@ -35,7 +35,10 @@ The teacher writes a set of questions once. Every student then answers those que
   - two views: feedback *given by* a student, and feedback *received by* a student;
   - "not reviewed" filter, and mark as reviewed, which locks the feedback;
   - reopen when needed;
-  - optional grade and comment on every single feedback.
+  - optional grade and comment on every single feedback;
+  - students listed group by group, with a group filter;
+  - an overall comment per student, shown when the teacher decides.
+- **Teacher feedback for students:** each student sees a "Teacher feedback" list with the teacher's comments (and grades) on every feedback they wrote, plus the overall comment. A Moodle notification tells them when something new arrives.
 - **Gradebook integration (optional):** the student's grade is the average of the grades their feedback received from the teacher.
 - **Export** to Excel, CSV or ODS, organised by giver or by receiver, including teacher grades and comments.
 - Open and due dates, activity completion ("submitted feedback for all group members"), backup and restore, and the full Privacy API.

@@ -65,6 +65,12 @@ class provider implements
         $collection->add_database_table('peerfeedback_answer', [
             'value' => 'privacy:metadata:peerfeedback_answer:value',
         ], 'privacy:metadata:peerfeedback_answer');
+        $collection->add_database_table('peerfeedback_overall', [
+            'userid' => 'privacy:metadata:peerfeedback_overall:userid',
+            'comment' => 'privacy:metadata:peerfeedback_overall:comment',
+            'teacherid' => 'privacy:metadata:peerfeedback_overall:teacherid',
+            'timemodified' => 'privacy:metadata:peerfeedback_overall:timemodified',
+        ], 'privacy:metadata:peerfeedback_overall');
         $collection->add_subsystem_link('core_grades', [], 'privacy:metadata:core_grades');
         return $collection;
     }
@@ -87,6 +93,10 @@ class provider implements
             WHERE r.giverid = :u1 OR r.receiverid = :u2 OR r.reviewerid = :u3",
             ['ctxlevel' => CONTEXT_MODULE, 'u1' => $userid, 'u2' => $userid, 'u3' => $userid]
         );
+        $list->add_from_sql(
+            "$base JOIN {peerfeedback_overall} o ON o.peerfeedbackid = pf.id WHERE o.userid = :u1 OR o.teacherid = :u2",
+            ['ctxlevel' => CONTEXT_MODULE, 'u1' => $userid, 'u2' => $userid]
+        );
         return $list;
     }
 
@@ -106,6 +116,9 @@ class provider implements
         $userlist->add_from_sql('userid', "SELECT userid FROM {peerfeedback_member} WHERE peerfeedbackid = ($pfsql)", $params);
         foreach (['giverid', 'receiverid', 'reviewerid'] as $f) {
             $userlist->add_from_sql($f, "SELECT $f FROM {peerfeedback_response} WHERE peerfeedbackid = ($pfsql)", $params);
+        }
+        foreach (['userid', 'teacherid'] as $f) {
+            $userlist->add_from_sql($f, "SELECT $f FROM {peerfeedback_overall} WHERE peerfeedbackid = ($pfsql)", $params);
         }
     }
 
@@ -174,6 +187,18 @@ class provider implements
                     'comment' => $r->teachercomment,
                     'timereviewed' => $r->timereviewed ? transform::datetime($r->timereviewed) : null];
             }
+            $overall = $DB->get_record('peerfeedback_overall', ['peerfeedbackid' => $pf->id, 'userid' => $userid]);
+            if ($overall) {
+                writer::with_context($context)->export_data(
+                    [get_string('privacy:overall', 'peerfeedback')],
+                    (object)['comment' => $overall->comment, 'shown' => transform::yesno($overall->shown),
+                        'timemodified' => transform::datetime($overall->timemodified)]
+                );
+            }
+            foreach ($DB->get_records('peerfeedback_overall', ['peerfeedbackid' => $pf->id, 'teacherid' => $userid]) as $o) {
+                $reviews[] = (object)['grade' => null, 'comment' => $o->comment,
+                    'timereviewed' => transform::datetime($o->timemodified)];
+            }
             if ($reviews) {
                 writer::with_context($context)->export_data(
                     [get_string('privacy:reviews', 'peerfeedback')],
@@ -199,6 +224,7 @@ class provider implements
             [$pf->id]
         );
         $DB->delete_records('peerfeedback_response', ['peerfeedbackid' => $pf->id]);
+        $DB->delete_records('peerfeedback_overall', ['peerfeedbackid' => $pf->id]);
         $DB->delete_records('peerfeedback_member', ['peerfeedbackid' => $pf->id]);
     }
 
@@ -247,6 +273,14 @@ class provider implements
         $DB->delete_records_select('peerfeedback_response', $where, $params);
         [$in, $p] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $DB->delete_records_select('peerfeedback_member', "peerfeedbackid = :pfid AND userid $in", ['pfid' => $pf->id] + $p);
+        $DB->delete_records_select('peerfeedback_overall', "peerfeedbackid = :pfid AND userid $in", ['pfid' => $pf->id] + $p);
+        $DB->set_field_select(
+            'peerfeedback_overall',
+            'teacherid',
+            null,
+            "peerfeedbackid = :pfid AND teacherid $in",
+            ['pfid' => $pf->id] + $p
+        );
         $DB->set_field_select(
             'peerfeedback_response',
             'reviewerid',

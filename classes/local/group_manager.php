@@ -87,6 +87,28 @@ class group_manager {
     }
 
     /**
+     * Students who are in a group, group by group in group order, members alphabetical. Empty groups are left out.
+     *
+     * @param int $groupid only this group; 0 for all
+     * @return array list of ['id' => int, 'name' => string, 'users' => \stdClass[] userid => user]
+     */
+    public function grouped_users(int $groupid = 0): array {
+        $users = $this->eligible_users();
+        $sections = [];
+        foreach ($this->get_groups() as $g) {
+            if ($groupid && (int)$g->id !== $groupid) {
+                continue;
+            }
+            $members = array_flip($g->members);
+            $list = array_filter($users, fn($u) => isset($members[$u->id]));
+            if ($list) {
+                $sections[] = ['id' => (int)$g->id, 'name' => $g->name, 'users' => $list];
+            }
+        }
+        return $sections;
+    }
+
+    /**
      * The group a user belongs to.
      *
      * @param int $userid

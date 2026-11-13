@@ -162,6 +162,36 @@ final class group_manager_test extends \advanced_testcase {
         $this->assertSame(['Ayla Demir', 'ayşe Kaya', 'Can Yılmaz', 'Zeynep Arslan'], $names);
     }
 
+    public function test_grouped_users_lists_only_grouped_students_group_by_group(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $u = [];
+        foreach (['Zeynep', 'Ayla', 'Can', 'Deniz', 'Ece'] as $first) {
+            $u[$first] = $this->getDataGenerator()->create_and_enrol($course, 'student', ['firstname' => $first,
+                'lastname' => 'X']);
+        }
+        $mod = $this->getDataGenerator()->create_module('peerfeedback', ['course' => $course->id]);
+        $pf = $DB->get_record('peerfeedback', ['id' => $mod->id]);
+        $gm = new group_manager($pf, \context_module::instance($mod->cmid));
+        $g1 = $gm->create_group('Team B');
+        $g2 = $gm->create_group('Team A');
+        $gm->assign([$u['Zeynep']->id, $u['Can']->id], $g1);
+        $gm->assign([$u['Deniz']->id], $g2);
+        $gm->create_group('Empty');
+
+        $sections = $gm->grouped_users();
+        $this->assertSame(['Team B', 'Team A'], array_column($sections, 'name'));
+        $this->assertSame($g1, $sections[0]['id']);
+        $this->assertSame(['Can X', 'Zeynep X'], array_values(array_map('fullname', $sections[0]['users'])));
+        $this->assertSame(['Deniz X'], array_values(array_map('fullname', $sections[1]['users'])));
+
+        $only = $gm->grouped_users($g2);
+        $this->assertCount(1, $only);
+        $this->assertSame('Team A', $only[0]['name']);
+        $this->assertSame([], $gm->grouped_users(999999));
+    }
+
     public function test_random_by_size_balanced(): void {
         $this->setup_students(10);
         $this->gm->random_assign('size', 4, false, 7);

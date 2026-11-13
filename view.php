@@ -95,6 +95,9 @@ echo $renderer->render_from_template(
     'mod_peerfeedback/answer',
     $renderer->answer_context($cm, $pf, $rm, $peers, $peerid, $questions, $posted, $errors)
 );
+if ($teacherfeedback = $renderer->teacher_feedback_context($pf, $context, $USER->id)) {
+    echo $renderer->render_from_template('mod_peerfeedback/teacher_feedback', $teacherfeedback);
+}
 if ($results = $renderer->student_results_context($pf, $USER->id)) {
     echo $renderer->render_from_template('mod_peerfeedback/student_results', $results);
 }
